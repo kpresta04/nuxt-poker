@@ -1,16 +1,53 @@
 <template>
-  <div class="blackJackBoard"></div>
+  <div class="blackJackBoard">
+    <div class="cardDiv">
+      <img
+        v-for="card in botHand"
+        :src="imageDict[card]"
+        alt="card"
+        :key="card.index"
+      />
+    </div>
+    <div class="cardDiv">
+      <img
+        v-for="card in boardHand"
+        :src="imageDict[card]"
+        alt="card"
+        :key="card.index"
+      />
+    </div>
+    <div class="cardDiv">
+      <img
+        v-for="card in humanHand"
+        :src="imageDict[card]"
+        alt="card"
+        :key="card.index"
+      />
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
+import { imageDict } from "../utils/imageDict";
 
 export default Vue.extend({
-  // computed: {
-  //   state() {
-  //     return this.$store.state.counter;
-  //   }
-  // }
+  data() {
+    return {
+      imageDict
+    };
+  },
+  computed: {
+    humanHand() {
+      return this.$store.state.humanHand;
+    },
+    botHand() {
+      return this.$store.state.botHand;
+    },
+    boardHand() {
+      return this.$store.state.boardHand;
+    }
+  }
 });
 </script>
 
@@ -52,7 +89,7 @@ export default Vue.extend({
   left: 50%;
   transform: translate(-50%, 80%); */
 }
-.oppCardDiv {
+.botCardDiv {
   position: relative;
   grid-row: 1 / span 2;
 }
