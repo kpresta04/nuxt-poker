@@ -2,6 +2,7 @@
   <div class="blackJackBoard">
     <div class="cardDiv">
       <img
+        class="playingCard"
         v-for="card in botHand"
         :src="imageDict[card]"
         alt="card"
@@ -10,6 +11,7 @@
     </div>
     <div class="cardDiv">
       <img
+        class="playingCard"
         v-for="card in boardHand"
         :src="imageDict[card]"
         alt="card"
@@ -18,11 +20,16 @@
     </div>
     <div class="cardDiv">
       <img
+        class="playingCard"
         v-for="card in humanHand"
         :src="imageDict[card]"
         alt="card"
         :key="card.index"
       />
+    </div>
+    <div class="buttons">
+      <v-btn color="red darken-4">Fold</v-btn>
+      <v-btn>Next</v-btn>
     </div>
   </div>
 </template>
@@ -32,10 +39,18 @@ import Vue from "vue";
 import { imageDict } from "../utils/imageDict";
 
 export default Vue.extend({
+  mounted() {
+    this.startGame();
+  },
   data() {
     return {
       imageDict
     };
+  },
+  methods: {
+    startGame() {
+      console.log("hello");
+    }
   },
   computed: {
     humanHand() {
@@ -46,12 +61,22 @@ export default Vue.extend({
     },
     boardHand() {
       return this.$store.state.boardHand;
+    },
+    deck() {
+      return this.$store.state.deck;
     }
   }
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+.buttons {
+  display: flex;
+  justify-content: center;
+  button {
+    margin: 1rem;
+  }
+}
 .blackJackBoard {
   color: white;
   height: auto;
@@ -92,5 +117,10 @@ export default Vue.extend({
 .botCardDiv {
   position: relative;
   grid-row: 1 / span 2;
+}
+@media screen and (max-width: 620px) {
+  .playingCard {
+    width: 60px !important;
+  }
 }
 </style>

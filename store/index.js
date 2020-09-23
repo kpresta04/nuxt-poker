@@ -1,7 +1,11 @@
+import createDeck from "~/utils/createDeck";
+let newDeck = createDeck();
+
 export const state = () => ({
-  humanHand: ["Ac", "Td"],
-  boardHand: ["As", "4s", "2s"],
-  botHand: ["4c", "4h"]
+  humanHand: [],
+  boardHand: [],
+  botHand: [],
+  deck: newDeck
 });
 
 export const mutations = {};
