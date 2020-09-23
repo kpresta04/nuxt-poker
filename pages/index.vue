@@ -1,11 +1,17 @@
 <template>
-  <div></div>
+  <div class="blackJackBoard"></div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 
-export default Vue.extend({});
+export default Vue.extend({
+  // computed: {
+  //   state() {
+  //     return this.$store.state.counter;
+  //   }
+  // }
+});
 </script>
 
 <style scoped>
