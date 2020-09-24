@@ -24,5 +24,10 @@ export const mutations = {
       boardHand: boardArray,
       botHand: botArray
     };
+  },
+  dealCard(state) {
+    let boardArray = [...state.board.boardHand];
+    deck.deal(1, [boardArray]);
+    state.board.boardHand = boardArray;
   }
 };

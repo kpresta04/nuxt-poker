@@ -6,7 +6,7 @@
           class="playingCard"
           v-for="card in botHand"
           :src="imageDict[card.shortString]"
-          alt="card"
+          :alt="card.toString()"
           :key="card.index"
         />
       </div>
@@ -15,7 +15,7 @@
           class="playingCard"
           v-for="card in botHand"
           :src="imageDict['Back']"
-          alt="card"
+          alt="Opponent card"
           :key="card.index"
         />
       </div>
@@ -24,7 +24,7 @@
           class="playingCard"
           v-for="card in boardHand"
           :src="imageDict[card.shortString]"
-          alt="card"
+          :alt="card.toString()"
           :key="card.index"
         />
       </div>
@@ -33,13 +33,13 @@
           class="playingCard"
           v-for="card in humanHand"
           :src="imageDict[card.shortString]"
-          alt="card"
+          :alt="card.toString()"
           :key="card.index"
         />
       </div>
       <div class="buttons">
-        <v-btn color="red darken-4">Fold</v-btn>
-        <v-btn>Next</v-btn>
+        <v-btn @click="fold" color="red darken-4">Fold</v-btn>
+        <v-btn @click="nextCard">Next</v-btn>
       </div>
     </div>
   </div>
@@ -62,12 +62,35 @@ export default Vue.extend({
   data() {
     return {
       imageDict,
-      running: true
+      running: true,
+      stage: Stage.FLOP
     };
   },
   methods: {
     startGame() {
+      this.running = true;
+      this.stage = Stage.FLOP;
       this.$store.commit(Stage.FLOP);
+    },
+    nextCard() {
+      switch (this.stage) {
+        case Stage.FLOP:
+          this.stage = Stage.TURN;
+          this.$store.commit("dealCard");
+          return;
+
+        case Stage.TURN:
+          this.stage = Stage.RIVER;
+          this.$store.commit("dealCard");
+          return;
+        case Stage.RIVER:
+          return;
+      }
+    },
+    fold() {
+      this.running = false;
+
+      setTimeout(this.startGame, 3000);
     }
   },
   computed: {
