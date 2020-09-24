@@ -1,35 +1,46 @@
 <template>
   <div class="blackJackBoard">
-    <div class="cardDiv">
-      <img
-        class="playingCard"
-        v-for="card in botHand"
-        :src="imageDict[card]"
-        alt="card"
-        :key="card.index"
-      />
-    </div>
-    <div class="cardDiv">
-      <img
-        class="playingCard"
-        v-for="card in boardHand"
-        :src="imageDict[card]"
-        alt="card"
-        :key="card.index"
-      />
-    </div>
-    <div class="cardDiv">
-      <img
-        class="playingCard"
-        v-for="card in humanHand"
-        :src="imageDict[card]"
-        alt="card"
-        :key="card.index"
-      />
-    </div>
-    <div class="buttons">
-      <v-btn color="red darken-4">Fold</v-btn>
-      <v-btn>Next</v-btn>
+    <div class="cardsDiv">
+      <div v-if="!running" class="cardDiv">
+        <img
+          class="playingCard"
+          v-for="card in botHand"
+          :src="imageDict[card.shortString]"
+          alt="card"
+          :key="card.index"
+        />
+      </div>
+      <div v-else class="cardDiv">
+        <img
+          class="playingCard"
+          v-for="card in botHand"
+          :src="imageDict['Back']"
+          alt="card"
+          :key="card.index"
+        />
+      </div>
+      <div class="cardDiv">
+        <img
+          class="playingCard"
+          v-for="card in boardHand"
+          :src="imageDict[card.shortString]"
+          alt="card"
+          :key="card.index"
+        />
+      </div>
+      <div class="cardDiv">
+        <img
+          class="playingCard"
+          v-for="card in humanHand"
+          :src="imageDict[card.shortString]"
+          alt="card"
+          :key="card.index"
+        />
+      </div>
+      <div class="buttons">
+        <v-btn color="red darken-4">Fold</v-btn>
+        <v-btn>Next</v-btn>
+      </div>
     </div>
   </div>
 </template>
@@ -38,32 +49,36 @@
 import Vue from "vue";
 import { imageDict } from "../utils/imageDict";
 
+enum Stage {
+  FLOP = "flop",
+  TURN = "turn",
+  RIVER = "river"
+}
+
 export default Vue.extend({
   mounted() {
     this.startGame();
   },
   data() {
     return {
-      imageDict
+      imageDict,
+      running: true
     };
   },
   methods: {
     startGame() {
-      console.log("hello");
+      this.$store.commit(Stage.FLOP);
     }
   },
   computed: {
     humanHand() {
-      return this.$store.state.humanHand;
+      return this.$store.state.board.humanHand;
     },
     botHand() {
-      return this.$store.state.botHand;
+      return this.$store.state.board.botHand;
     },
     boardHand() {
-      return this.$store.state.boardHand;
-    },
-    deck() {
-      return this.$store.state.deck;
+      return this.$store.state.board.boardHand;
     }
   }
 });
@@ -86,20 +101,25 @@ export default Vue.extend({
   background-repeat: repeat-y;
   background-color: #000000;
   box-shadow: 5px 1px 10px #000000;
-  display: grid;
-  grid-template-rows: repeat(5, 1fr);
+  display: flex;
+  place-items: center;
+  /* display: grid;
+  grid-template-rows: repeat(5, 1fr); */
   /* grid-template-columns: repeat(4, 1fr); */
 }
-
+.cardsDiv {
+  margin: 0 auto 5rem auto;
+}
 .cardDiv {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
+  margin: 4rem 0;
 }
 .boardCardDiv {
   width: 100%;
-  grid-row: 3;
+  /* grid-row: 3; */
   /* grid-column: 2 / span 3; */
   /* position: absolute;
   top: 50%;
@@ -108,7 +128,7 @@ export default Vue.extend({
 }
 .humanHandDiv {
   width: 100%;
-  grid-row: 4 / span 2;
+  /* grid-row: 4 / span 2; */
   /* position: absolute;
   top: 50%;
   left: 50%;
@@ -116,11 +136,14 @@ export default Vue.extend({
 }
 .botCardDiv {
   position: relative;
-  grid-row: 1 / span 2;
+  /* grid-row: 1 / span 2; */
 }
 @media screen and (max-width: 620px) {
   .playingCard {
     width: 60px !important;
   }
+}
+.playingCard {
+  margin: 0 0.5rem;
 }
 </style>
