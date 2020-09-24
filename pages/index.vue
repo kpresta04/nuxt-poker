@@ -38,8 +38,10 @@
         />
       </div>
       <div class="buttons">
-        <v-btn @click="fold" color="red darken-4">Fold</v-btn>
-        <v-btn @click="nextCard">Next</v-btn>
+        <v-btn :class="{ opaque: !running }" @click="fold" color="red darken-4"
+          >Fold</v-btn
+        >
+        <v-btn :class="{ opaque: !running }" @click="nextCard">Next</v-btn>
       </div>
     </div>
   </div>
@@ -114,6 +116,9 @@ export default Vue.extend({
   button {
     margin: 1rem;
   }
+}
+.opaque {
+  opacity: 0.5;
 }
 .blackJackBoard {
   color: white;
