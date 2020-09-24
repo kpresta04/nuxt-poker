@@ -10,6 +10,7 @@
           :key="card.index"
         />
       </div>
+
       <div v-else class="cardDiv">
         <img
           class="playingCard"
@@ -19,6 +20,19 @@
           :key="card.index"
         />
       </div>
+      <template>
+        <div class="text-center ma-2">
+          <v-snackbar centered timeout="-1" v-model="dialog">
+            {{ result.headline }}: {{ result.title }}
+
+            <template v-slot:action="{ attrs }">
+              <v-btn color="pink" text v-bind="attrs" @click="startGame">
+                Play again
+              </v-btn>
+            </template>
+          </v-snackbar>
+        </div>
+      </template>
       <div class="cardDiv">
         <img
           class="playingCard"
@@ -50,6 +64,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { imageDict } from "../utils/imageDict";
+const Hand = require("pokersolver").Hand;
 
 enum Stage {
   FLOP = "flop",
@@ -63,6 +78,8 @@ export default Vue.extend({
   },
   data() {
     return {
+      dialog: false,
+      result: {},
       imageDict,
       running: true,
       stage: Stage.FLOP
@@ -70,6 +87,7 @@ export default Vue.extend({
   },
   methods: {
     startGame() {
+      this.dialog = false;
       this.running = true;
       this.stage = Stage.FLOP;
       this.$store.commit(Stage.FLOP);
@@ -84,6 +102,7 @@ export default Vue.extend({
         case Stage.TURN:
           this.stage = Stage.RIVER;
           this.$store.commit("dealCard");
+          setTimeout(this.checkWinner, 1000);
           return;
         case Stage.RIVER:
           return;
@@ -93,6 +112,73 @@ export default Vue.extend({
       this.running = false;
 
       setTimeout(this.startGame, 3000);
+    },
+    mapShortStrings(hand: any) {
+      const stringArray = [...hand, ...this.boardHand].map((card: any) => {
+        return card.shortString;
+      });
+      return stringArray;
+    },
+    checkWinner() {
+      this.running = false;
+      let sameCount = 0;
+
+      let hStringArray = this.mapShortStrings(this.humanHand);
+      let botStringArray = this.mapShortStrings(this.botHand);
+      const boardStringArray = this.boardHand.map((card: any) => {
+        return card.shortString;
+      });
+
+      const hHand = Hand.solve(hStringArray);
+      const bHand = Hand.solve(botStringArray);
+      const winner = Hand.winners([hHand, bHand]);
+      const winnerStringArray = winner[0].cards.map((card: any) => {
+        return card.value + card.suit;
+      });
+      botStringArray = bHand.cards.map((card: any) => {
+        return card.value + card.suit;
+      });
+      hStringArray = hHand.cards.map((card: any) => {
+        return card.value + card.suit;
+      });
+
+      winnerStringArray.forEach((el: string, index: number) => {
+        if (el === hStringArray[index]) {
+          sameCount++;
+        }
+      });
+      if (winner.length > 1) {
+        // console.log("Tie", winner.descr);
+        this.result = {
+          headline: "Tied",
+          title: winner[0].descr,
+          hand: []
+        };
+      } else if (sameCount === 5) {
+        // console.log("Human won: ", hHand);
+        this.result = {
+          headline: "You won",
+          hand: hStringArray,
+          title: winner[0].descr
+        };
+      } else {
+        this.result = {
+          headline: "Bot won",
+          hand: botStringArray,
+          title: winner[0].descr
+        };
+      }
+      // console.log(winner);
+      // console.log("winner strings: ", winnerStringArray);
+      // console.log("botStrings: ", botStringArray);
+      // console.log("human strings: ", hStringArray);
+
+      // console.log("Bot hand: ", bHand);
+
+      // console.log("Human hand: ", hHand);
+      // console.log(hHand);
+
+      this.dialog = true;
     }
   },
   computed: {
@@ -168,7 +254,7 @@ export default Vue.extend({
 }
 @media screen and (max-width: 620px) {
   .playingCard {
-    width: 60px !important;
+    width: 55px !important;
   }
 }
 .playingCard {
