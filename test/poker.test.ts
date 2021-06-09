@@ -6,15 +6,19 @@ enum Stage {
   TURN = "turn",
   RIVER = "river"
 }
-
+interface Hand {
+  description: String;
+  shortString: String;
+  suit: String;
+}
 class Game {
   deck: { deal: Function };
-  humanHand: [];
-  compHand: [];
-  boardHand: [];
-  hands: [][];
+  humanHand: Hand[];
+  compHand: Hand[];
+  boardHand: Hand[];
+  hands: any;
   stage: Stage;
-  winner: {};
+  winner: { name: String };
 
   constructor() {
     this.deck = createDeck();
@@ -23,7 +27,7 @@ class Game {
     this.humanHand = [];
     this.stage = Stage.TURN;
     this.hands = [this.humanHand, this.boardHand, this.compHand];
-    this.winner = {};
+    this.winner = { name: "" };
     this.deck.deal(2, [this.humanHand, this.compHand]);
     this.deck.deal(3, [this.boardHand]);
   }
@@ -66,11 +70,13 @@ class Game {
     // console.log({ botStringArray });
     // console.log({ winner, winnerStringArray });
 
-    if (hStringArray.every((el, index) => el === winnerStringArray[index])) {
-      this.winner = { name: "Human" };
+    if (winner.length > 1) {
+      this.winner = { name: "tie" };
     } else if (
-      botStringArray.every((el, index) => el === winnerStringArray[index])
+      hStringArray.every((el, index) => el === winnerStringArray[index])
     ) {
+      this.winner = { name: "Human" };
+    } else {
       this.winner = { name: "Computer" };
     }
   }
@@ -108,5 +114,33 @@ describe("Poker game", () => {
     game.checkWinner();
 
     expect(game.winner).toHaveProperty("name");
+  });
+
+  test("tie behavior working properly", () => {
+    game.flop();
+    game.river();
+
+    game.humanHand = [
+      { suit: "Spade", description: "Seven", shortString: "7s" },
+      { suit: "Spade", description: "Six", shortString: "6s" }
+    ];
+
+    game.compHand = [
+      { suit: "Diamond", description: "Seven", shortString: "7d" },
+      { suit: "Diamond", description: "Six", shortString: "6d" }
+    ];
+
+    game.boardHand = [
+      { suit: "Club", description: "Seven", shortString: "7c" },
+      { suit: "Club", description: "Six", shortString: "6c" },
+      { suit: "Diamond", description: "Two", shortString: "2d" },
+      { suit: "Diamond", description: "Three", shortString: "3d" },
+      { suit: "Spade", description: "King", shortString: "Ks" }
+    ];
+    // console.log(game.humanHand);
+
+    game.checkWinner();
+
+    expect(game.winner.name).toEqual("tie");
   });
 });
