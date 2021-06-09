@@ -14,6 +14,7 @@ class Game {
   boardHand: [];
   hands: [][];
   stage: Stage;
+  winner: {};
 
   constructor() {
     this.deck = createDeck();
@@ -22,7 +23,7 @@ class Game {
     this.humanHand = [];
     this.stage = Stage.TURN;
     this.hands = [this.humanHand, this.boardHand, this.compHand];
-
+    this.winner = {};
     this.deck.deal(2, [this.humanHand, this.compHand]);
     this.deck.deal(3, [this.boardHand]);
   }
@@ -32,6 +33,46 @@ class Game {
   }
   river() {
     this.deck.deal(1, [this.boardHand]);
+  }
+  mapShortStrings(hand: {}[]) {
+    const stringArray = [...hand, ...this.boardHand].map((card: any) => {
+      return card.shortString;
+    });
+    return stringArray;
+  }
+  checkWinner() {
+    let hStringArray = this.mapShortStrings(this.humanHand);
+    let botStringArray = this.mapShortStrings(this.compHand);
+    const boardStringArray = this.boardHand.map((card: any) => {
+      return card.shortString;
+    });
+
+    // console.log({ boardStringArray });
+
+    const hHand = Hand.solve(hStringArray);
+    const bHand = Hand.solve(botStringArray);
+    const winner = Hand.winners([hHand, bHand]);
+
+    const winnerStringArray = winner[0].cards.map((card: any) => {
+      return card.value + card.suit;
+    });
+    botStringArray = bHand.cards.map((card: any) => {
+      return card.value + card.suit;
+    });
+    hStringArray = hHand.cards.map((card: any) => {
+      return card.value + card.suit;
+    });
+    // console.log({ hStringArray });
+    // console.log({ botStringArray });
+    // console.log({ winner, winnerStringArray });
+
+    if (hStringArray.every((el, index) => el === winnerStringArray[index])) {
+      this.winner = { name: "Human" };
+    } else if (
+      botStringArray.every((el, index) => el === winnerStringArray[index])
+    ) {
+      this.winner = { name: "Computer" };
+    }
   }
 }
 
@@ -59,5 +100,13 @@ describe("Poker game", () => {
     game.flop();
     game.river();
     expect(game.boardHand.length).toEqual(5);
+  });
+
+  test("game has winner", () => {
+    game.flop();
+    game.river();
+    game.checkWinner();
+
+    expect(game.winner).toHaveProperty("name");
   });
 });
