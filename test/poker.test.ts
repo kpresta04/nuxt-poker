@@ -1,4 +1,5 @@
 import createDeck from "../utils/createDeck";
+const Hand = require("pokersolver").Hand;
 
 enum Stage {
   FLOP = "flop",
@@ -25,6 +26,13 @@ class Game {
     this.deck.deal(2, [this.humanHand, this.compHand]);
     this.deck.deal(3, [this.boardHand]);
   }
+
+  flop() {
+    this.deck.deal(1, [this.boardHand]);
+  }
+  river() {
+    this.deck.deal(1, [this.boardHand]);
+  }
 }
 
 describe("Poker game", () => {
@@ -41,5 +49,15 @@ describe("Poker game", () => {
   test("each player starts with two cards", () => {
     expect(game.compHand.length).toEqual(2);
     expect(game.humanHand.length).toEqual(2);
+  });
+
+  test("board has 4 cards after flop", () => {
+    game.flop();
+    expect(game.boardHand.length).toEqual(4);
+  });
+  test("board has 5 cards after river", () => {
+    game.flop();
+    game.river();
+    expect(game.boardHand.length).toEqual(5);
   });
 });
