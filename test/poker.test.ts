@@ -57,6 +57,8 @@ class Game {
     const bHand = Hand.solve(botStringArray);
     const winner = Hand.winners([hHand, bHand]);
 
+    //need to compare winner's cards to player's cards so we can figure out who won
+
     const winnerStringArray = winner[0].cards.map((card: any) => {
       return card.value + card.suit;
     });
@@ -117,9 +119,6 @@ describe("Poker game", () => {
   });
 
   test("tie behavior working properly", () => {
-    game.flop();
-    game.river();
-
     game.humanHand = [
       { suit: "Spade", description: "Seven", shortString: "7s" },
       { suit: "Spade", description: "Six", shortString: "6s" }
