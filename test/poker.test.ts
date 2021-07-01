@@ -3,6 +3,11 @@ const Hand = require("pokersolver").Hand;
 import { actions, createMachine, assign, interpret } from "xstate";
 
 // interface
+
+type UserEvents = {
+  type: string;
+  value: string;
+};
 const createPokerMachine = () =>
   createMachine(
     {
@@ -16,16 +21,13 @@ const createPokerMachine = () =>
         inactive: {
           on: {
             CHOOSE_PLAYER_NUMBER: {
-              target: "active",
+              target: "setup",
               // transition actions
-              actions: ["setPlayerNumber"]
+              actions: ["setPlayerNumber", "spawnPlayerActors"]
             }
           }
         },
-        active: {
-          // entry actions
-          // entry: ["notifyActive", "sendTelemetry"],
-          // exit actions
+        setup: {
           exit: ["notifyInactive", "sendTelemetry"],
           on: {
             STOP: { target: "inactive" }
@@ -40,8 +42,11 @@ const createPokerMachine = () =>
           console.log("activating...");
         },
         setPlayerNumber: assign({
-          playerNumber: (context, event: any) => event.number
+          playerNumber: (context, event: UserEvents) => Number(event.value)
         }),
+        spawnPlayerActors: (context, event) => {
+          console.log("spawning players");
+        },
         notifyActive: (context, event) => {
           console.log("active!");
         },
@@ -99,9 +104,9 @@ describe("poker machine", () => {
   it("has correct number of players", () => {
     service.send({
       type: "CHOOSE_PLAYER_NUMBER",
-      number: 7
+      value: "6"
     });
-    expect(service.state.context.playerNumber).toEqual(7);
-    // console.log(service.state);
+    expect(service.state.context.playerNumber).toEqual(6);
+    // console.log(service.state.context.deck);
   });
 });
