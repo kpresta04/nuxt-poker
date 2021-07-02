@@ -105,14 +105,6 @@ const createPokerMachine = () => {
         deck: createDeck(),
         playerNumber: 0,
         players: [] as PlayerList
-        // player0: {},
-        // player1: {},
-        // player2: {},
-        // player3: {},
-        // player4: {},
-        // player5: {},
-        // player6: {},
-        // player7: {}
       },
       states: {
         inactive: {
@@ -120,11 +112,7 @@ const createPokerMachine = () => {
             CHOOSE_PLAYER_NUMBER: {
               target: "dealing",
               // transition actions
-              actions: [
-                "setPlayerNumber",
-                "createPlayerList",
-                "spawnPlayerActors"
-              ]
+              actions: ["setPlayerNumber", "spawnPlayerActors"]
             }
           }
         },
