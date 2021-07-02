@@ -1,6 +1,6 @@
 import createDeck from "../utils/createDeck";
 const Hand = require("pokersolver").Hand;
-import { actions, createMachine, assign, interpret, spawn } from "xstate";
+import { actions, createMachine, assign, interpret, spawn, send } from "xstate";
 
 // interface
 
@@ -21,40 +21,83 @@ type PlayerList = any;
 const createPlayer = (
   player: PlayerContext = { index: 0, chips: 1000, betAmount: 0, hand: [] }
 ) =>
-  createMachine({
-    id: `player-${player.index}`,
-    initial: "inGame",
-    context: {
-      index: player.index,
-      chips: player.chips,
-      betAmount: player.betAmount,
-      hand: player.hand
-    },
-    states: {
-      inGame: {
-        initial: "inRound",
-        states: {
-          inRound: {
-            on: {
-              FOLD: {
-                target: "folded"
-              }
-            }
-          },
-          folded: {}
-        },
-        on: {
-          BUST: { target: "outOfGame" }
-        }
+  createMachine(
+    {
+      id: `player-${player.index}`,
+      initial: "inGame",
+      context: {
+        index: player.index,
+        chips: player.chips,
+        betAmount: player.betAmount,
+        hand: player.hand
       },
-      outOfGame: {
-        type: "final"
+      states: {
+        inGame: {
+          initial: "noCards",
+          states: {
+            noCards: {
+              on: {
+                CARDS_DEALT: {
+                  target: "hasCards",
+                  actions: assign({
+                    hand: (context, event: any) => event.value
+                  })
+                }
+              }
+            },
+            hasCards: {
+              initial: "needsToBet",
+              states: {
+                needsToBet: {
+                  on: {
+                    BET: {
+                      target: "betted",
+                      actions: assign({
+                        betAmount: (context: any, event: any) =>
+                          context.betAmount + event.value
+                      })
+                    }
+                  }
+                },
+                betted: {}
+              },
+              on: {
+                FOLD: {
+                  target: "folded",
+                  actions: assign({
+                    hand: [],
+                    betAmount: (context, event) => 0
+                  })
+                }
+              }
+            },
+            folded: {}
+          },
+          on: {
+            BUST: { target: "outOfGame" }
+          }
+        },
+        outOfGame: {
+          type: "final"
+        }
       }
     }
-  });
+    // {
+    //   actions: {
+    //     reset: assign({
+    //       hand: []
+    //     })
+    //   }
+    // }
+  );
 
-const createPokerMachine = () =>
-  createMachine(
+type PokerContext = {
+  deck: any;
+  playerCount: number;
+};
+
+const createPokerMachine = () => {
+  return createMachine(
     {
       id: "poker",
       initial: "inactive",
@@ -62,6 +105,14 @@ const createPokerMachine = () =>
         deck: createDeck(),
         playerNumber: 0,
         players: [] as PlayerList
+        // player0: {},
+        // player1: {},
+        // player2: {},
+        // player3: {},
+        // player4: {},
+        // player5: {},
+        // player6: {},
+        // player7: {}
       },
       states: {
         inactive: {
@@ -69,7 +120,11 @@ const createPokerMachine = () =>
             CHOOSE_PLAYER_NUMBER: {
               target: "dealing",
               // transition actions
-              actions: ["setPlayerNumber", "spawnPlayerActors"]
+              actions: [
+                "setPlayerNumber",
+                "createPlayerList",
+                "spawnPlayerActors"
+              ]
             }
           }
         },
@@ -91,10 +146,34 @@ const createPokerMachine = () =>
         setPlayerNumber: assign({
           playerNumber: (context, event: UserEvents) => Number(event.value)
         }),
+        createPlayerList: assign({
+          players: (context, event) => {
+            let playerArr = [];
+            for (let i = 0; i < context.playerNumber; i++) {
+              const playerId = `player${i}`;
+              // let machine = spawn(createPlayer({ index: i }), `player-${i}`);
+              playerArr.push(playerId);
+            }
+            return playerArr;
+          }
+        }),
+
+        // spawnPlayerActors: context => {
+        //   for (let i = 0; i < context.playerNumber; i++) {
+        //     const playerId = `player${i}`;
+        //     // console.log(playerId);
+        //     assign({
+        //       playerId: context =>
+        //         spawn(createPlayer({ index: i }), `player-${i}`)
+        //     });
+        //   }
+        // },
+
         spawnPlayerActors: assign({
           players: (context, event) => {
             let playerArr = [];
             for (let i = 0; i < context.playerNumber; i++) {
+              // const playerId = `player${i}`;
               let machine = spawn(createPlayer({ index: i }), `player-${i}`);
               playerArr.push(machine);
             }
@@ -102,8 +181,11 @@ const createPokerMachine = () =>
           }
         }),
 
-        dealCards: () => {
+        dealCards: context => {
           console.log("dealing");
+          context.players.forEach((player: any) => {
+            // console.log(player);
+          });
         },
 
         notifyActive: (context, event) => {
@@ -118,6 +200,7 @@ const createPokerMachine = () =>
       }
     }
   );
+};
 
 describe("poker machine", () => {
   let poker: any;
@@ -138,7 +221,7 @@ describe("poker machine", () => {
       type: "CHOOSE_PLAYER_NUMBER",
       value: "6"
     });
-    // console.log(service.state.context);
+    console.log(service.state.context);
     expect(service.state.context.playerNumber).toEqual(
       service.state.context.players.length
     );
