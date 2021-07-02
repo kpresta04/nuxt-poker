@@ -26,10 +26,21 @@ type PlayerContext = {
 
 type PlayerList = any;
 
+const setBetAmount = assign({
+  betAmount: (context: any, event: any) =>
+    context.chips > context.betAmount + event.value
+      ? context.betAmount + event.value
+      : context.chips
+});
+
+const deductBetFromChips = assign({
+  chips: (context: any, event: any) => context.chips - context.betAmount
+});
+
 const createPlayer = (
-  player: PlayerContext = { index: 0, chips: 1000, betAmount: 0, hand: [] }
-) =>
-  createMachine(
+  player: any = { index: 0, chips: 1000, betAmount: 0, hand: [] }
+) => {
+  return createMachine(
     {
       id: `player-${player.index}`,
       initial: "inGame",
@@ -61,12 +72,19 @@ const createPlayer = (
               states: {
                 needsToBet: {
                   on: {
-                    BET: {
-                      target: "betted",
+                    CALL: {
+                      target: ".betted",
                       actions: assign({
                         betAmount: (context: any, event: any) =>
                           context.betAmount + event.value
                       })
+                    },
+                    DEDUCT_BIG_BLIND: {
+                      target: ".betted",
+                      actions: [setBetAmount, deductBetFromChips]
+                    },
+                    DEDUCT_SMALL_BLIND: {
+                      actions: [setBetAmount, deductBetFromChips]
                     }
                   }
                 },
@@ -77,7 +95,7 @@ const createPlayer = (
                   target: "folded",
                   actions: assign({
                     hand: [],
-                    betAmount: (context, event) => 0
+                    betAmount: () => 0
                   })
                 }
               }
@@ -95,13 +113,13 @@ const createPlayer = (
     }
     // {
     //   actions: {
-    //     reset: assign({
-    //       hand: []
-    //     })
+    //     // action implementations
+    //     sub: assign()
+    //     // subtractBet:
     //   }
     // }
   );
-
+};
 type PokerContext = {
   deck: any;
   playerCount: number;
@@ -233,7 +251,7 @@ describe("poker machine", () => {
   });
 
   it("has dealt each player 2 cards", () => {
-    // console.log(service.state.context.players[1].state.context.hand);
+    console.log(service.state.context.players[1].state);
     expect(service.state.context.players[1].state.context.hand.length).toEqual(
       2
     );
