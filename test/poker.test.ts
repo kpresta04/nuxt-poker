@@ -1,6 +1,14 @@
 import createDeck from "../utils/createDeck";
 const Hand = require("pokersolver").Hand;
-import { actions, createMachine, assign, interpret, spawn, send } from "xstate";
+import {
+  actions,
+  createMachine,
+  assign,
+  interpret,
+  spawn,
+  send,
+  sendUpdate
+} from "xstate";
 
 // interface
 
@@ -39,9 +47,12 @@ const createPlayer = (
               on: {
                 CARDS_DEALT: {
                   target: "hasCards",
-                  actions: assign({
-                    hand: (context, event: any) => event.value
-                  })
+                  actions: [
+                    assign({
+                      hand: (context, event: any) => event.value
+                    }),
+                    sendUpdate()
+                  ]
                 }
               }
             },
@@ -146,17 +157,6 @@ const createPokerMachine = () => {
           }
         }),
 
-        // spawnPlayerActors: context => {
-        //   for (let i = 0; i < context.playerNumber; i++) {
-        //     const playerId = `player${i}`;
-        //     // console.log(playerId);
-        //     assign({
-        //       playerId: context =>
-        //         spawn(createPlayer({ index: i }), `player-${i}`)
-        //     });
-        //   }
-        // },
-
         spawnPlayerActors: assign({
           players: (context, event) => {
             let playerArr = [];
@@ -170,9 +170,11 @@ const createPokerMachine = () => {
         }),
 
         dealCards: context => {
-          console.log("dealing");
+          // console.log("dealing");
           context.players.forEach((player: any) => {
-            // console.log(player);
+            let hand: any = [];
+            context.deck.deal(2, [hand]);
+            player.send({ type: "CARDS_DEALT", value: hand });
           });
         },
 
@@ -197,6 +199,10 @@ describe("poker machine", () => {
   beforeEach(() => {
     poker = createPokerMachine();
     service = interpret(poker).start();
+    service.send({
+      type: "CHOOSE_PLAYER_NUMBER",
+      value: "6"
+    });
 
     // console.log(poker);
   });
@@ -205,13 +211,15 @@ describe("poker machine", () => {
   });
 
   it("has correct number of players", () => {
-    service.send({
-      type: "CHOOSE_PLAYER_NUMBER",
-      value: "6"
-    });
-    console.log(service.state.context);
+    // console.log(service.state.context);
     expect(service.state.context.playerNumber).toEqual(
       service.state.context.players.length
+    );
+  });
+
+  it("has dealt each player 2 cards", () => {
+    expect(service.state.context.players[1].state.context.hand.length).toEqual(
+      2
     );
   });
 });
