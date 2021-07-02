@@ -1,6 +1,6 @@
 import createDeck from "../utils/createDeck";
 const Hand = require("pokersolver").Hand;
-import { actions, createMachine, assign, interpret } from "xstate";
+import { actions, createMachine, assign, interpret, spawn } from "xstate";
 
 // interface
 
@@ -10,19 +10,22 @@ type UserEvents = {
 };
 
 type PlayerContext = {
-  id?: string;
-  chips: number;
-  betAmount: number;
-  hand: any;
+  index: number;
+  chips?: number;
+  betAmount?: number;
+  hand?: any;
 };
 
+type PlayerList = any;
+
 const createPlayer = (
-  player: PlayerContext = { chips: 1000, betAmount: 0, hand: [] }
+  player: PlayerContext = { index: 0, chips: 1000, betAmount: 0, hand: [] }
 ) =>
   createMachine({
-    id: player.id,
+    id: `player-${player.index}`,
     initial: "inGame",
     context: {
+      index: player.index,
       chips: player.chips,
       betAmount: player.betAmount,
       hand: player.hand
@@ -57,7 +60,8 @@ const createPokerMachine = () =>
       initial: "inactive",
       context: {
         deck: createDeck(),
-        playerNumber: 0
+        playerNumber: 0,
+        players: [] as PlayerList
       },
       states: {
         inactive: {
@@ -70,9 +74,8 @@ const createPokerMachine = () =>
           }
         },
         setup: {
-          exit: ["notifyInactive", "sendTelemetry"],
           on: {
-            STOP: { target: "inactive" }
+            HELLO: { target: "inactive" }
           }
         }
       }
@@ -86,9 +89,17 @@ const createPokerMachine = () =>
         setPlayerNumber: assign({
           playerNumber: (context, event: UserEvents) => Number(event.value)
         }),
-        spawnPlayerActors: (context, event) => {
-          console.log("spawning players");
-        },
+        spawnPlayerActors: assign({
+          players: (context, event) => {
+            let playerArr = [];
+            for (let i = 0; i < context.playerNumber; i++) {
+              let machine = spawn(createPlayer({ index: i }), `player-${i}`);
+              playerArr.push(machine);
+            }
+            return playerArr;
+          }
+        }),
+
         notifyActive: (context, event) => {
           console.log("active!");
         },
@@ -148,7 +159,9 @@ describe("poker machine", () => {
       type: "CHOOSE_PLAYER_NUMBER",
       value: "6"
     });
-    expect(service.state.context.playerNumber).toEqual(6);
-    // console.log(service.state.context.deck);
+    // console.log(service.state.context);
+    expect(service.state.context.playerNumber).toEqual(
+      service.state.context.players.length
+    );
   });
 });
