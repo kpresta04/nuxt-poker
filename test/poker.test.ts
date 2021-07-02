@@ -115,7 +115,11 @@ const createPokerMachine = () => {
       context: {
         deck: createDeck(),
         playerNumber: 0,
-        players: [] as PlayerList
+        players: [] as PlayerList,
+        smallBlindPosition: 0,
+        bigBlindPosition: 1,
+        smallBlindAmount: 5,
+        playersInHand: [] as PlayerList
       },
       states: {
         inactive: {
@@ -123,17 +127,26 @@ const createPokerMachine = () => {
             CHOOSE_PLAYER_NUMBER: {
               target: "dealing",
               // transition actions
-              actions: ["setPlayerNumber", "spawnPlayerActors"]
+              actions: [
+                "setPlayerNumber",
+                "spawnPlayerActors",
+                "setPlayersInHand"
+              ]
             }
           }
         },
         dealing: {
           always: {
-            target: "gatheringAntes",
+            target: "gatheringFirstBlinds",
             actions: "dealCards"
           }
         },
-        gatheringAntes: {}
+        gatheringFirstBlinds: {
+          //auto-deduct big blind,
+          //auto-deduct small blind
+          //ask each player for bet, starting with small blind player
+          //if all players have bet, proceed to flop
+        }
       }
     },
     {
@@ -168,7 +181,9 @@ const createPokerMachine = () => {
             return playerArr;
           }
         }),
-
+        setPlayersInHand: assign({
+          playersInHand: (context, event) => context.players
+        }),
         dealCards: context => {
           // console.log("dealing");
           context.players.forEach((player: any) => {
@@ -218,6 +233,7 @@ describe("poker machine", () => {
   });
 
   it("has dealt each player 2 cards", () => {
+    // console.log(service.state.context.players[1].state.context.hand);
     expect(service.state.context.players[1].state.context.hand.length).toEqual(
       2
     );
