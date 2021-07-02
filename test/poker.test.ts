@@ -67,17 +67,19 @@ const createPokerMachine = () =>
         inactive: {
           on: {
             CHOOSE_PLAYER_NUMBER: {
-              target: "setup",
+              target: "dealing",
               // transition actions
               actions: ["setPlayerNumber", "spawnPlayerActors"]
             }
           }
         },
-        setup: {
-          on: {
-            HELLO: { target: "inactive" }
+        dealing: {
+          always: {
+            target: "gatheringAntes",
+            actions: "dealCards"
           }
-        }
+        },
+        gatheringAntes: {}
       }
     },
     {
@@ -100,6 +102,10 @@ const createPokerMachine = () =>
           }
         }),
 
+        dealCards: () => {
+          console.log("dealing");
+        },
+
         notifyActive: (context, event) => {
           console.log("active!");
         },
@@ -112,33 +118,6 @@ const createPokerMachine = () =>
       }
     }
   );
-// createMachine({
-//   context,
-//   id: "pokerGame",
-//   initial: "setupGame",
-
-//   states: {
-//     setupGame: {
-
-//       on: {
-//         CHOOSE_PLAYER_NUMBER: {
-//           target: "startRound",
-//           actions: assign({
-//             playerNumber: 8
-//           })
-//         }
-//       }
-//     },
-//     startRound: {},
-//     flop: {},
-//     turn: {},
-//     river: {},
-//     end: {}
-//   },
-//   {
-//     actions:{}
-//   }
-// });
 
 describe("poker machine", () => {
   let poker: any;
