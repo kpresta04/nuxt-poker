@@ -8,6 +8,48 @@ type UserEvents = {
   type: string;
   value: string;
 };
+
+type PlayerContext = {
+  id?: string;
+  chips: number;
+  betAmount: number;
+  hand: any;
+};
+
+const createPlayer = (
+  player: PlayerContext = { chips: 1000, betAmount: 0, hand: [] }
+) =>
+  createMachine({
+    id: player.id,
+    initial: "inGame",
+    context: {
+      chips: player.chips,
+      betAmount: player.betAmount,
+      hand: player.hand
+    },
+    states: {
+      inGame: {
+        initial: "inRound",
+        states: {
+          inRound: {
+            on: {
+              FOLD: {
+                target: "folded"
+              }
+            }
+          },
+          folded: {}
+        },
+        on: {
+          BUST: { target: "outOfGame" }
+        }
+      },
+      outOfGame: {
+        type: "final"
+      }
+    }
+  });
+
 const createPokerMachine = () =>
   createMachine(
     {
