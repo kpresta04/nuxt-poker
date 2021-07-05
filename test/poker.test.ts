@@ -77,7 +77,7 @@ const takeSmallBlind = (context: any) => {
   });
 };
 const createPlayer = (
-  player: any = { index: 0, chips: 1000, betAmount: 0, hand: [] }
+  player: any = { index: 0, chips: 1000, betAmount: 0, hand: [], human: false }
 ) => {
   return createMachine(
     {
@@ -87,7 +87,8 @@ const createPlayer = (
         index: player.index,
         chips: player.chips,
         betAmount: player.betAmount,
-        hand: player.hand
+        hand: player.hand,
+        human: player.human
       },
       states: {
         inGame: {
@@ -238,10 +239,26 @@ const createPokerMachine = () => {
         spawnPlayerActors: assign({
           players: (context, event) => {
             let playerArr = [];
-            for (let i = 0; i < context.playerNumber; i++) {
+
+            let human = spawn(
+              createPlayer({
+                index: 0,
+                chips: 1000,
+                betAmount: 0,
+                human: true
+              }),
+              { sync: true }
+            );
+            playerArr.push(human);
+            for (let i = 1; i < context.playerNumber; i++) {
               // const playerId = `player${i}`;
               let machine = spawn(
-                createPlayer({ index: i, chips: 1000, betAmount: 0 }),
+                createPlayer({
+                  index: i,
+                  chips: 1000,
+                  betAmount: 0,
+                  human: false
+                }),
                 { sync: true }
               );
               playerArr.push(machine);
@@ -343,7 +360,7 @@ describe("poker machine", () => {
     expect(service.state.context.players[0].state.value).toEqual({
       inGame: { hasCards: "betted" }
     });
-    // console.log(service.state.context.players[0].state.context);
+    console.log(service.state.context.players[0].state.context);
 
     expect(service.state.context.players[0].state.context.chips).toEqual(990);
   });
