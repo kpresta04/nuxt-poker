@@ -14,7 +14,7 @@ import {
 
 type UserEvents = {
   type: string;
-  value: string;
+  value: string | number;
 };
 
 type PlayerContext = {
@@ -306,7 +306,7 @@ describe("poker machine", () => {
     service = interpret(poker).start();
     service.send({
       type: "CHOOSE_PLAYER_NUMBER",
-      value: "6"
+      value: 6
     });
 
     // console.log(poker);
