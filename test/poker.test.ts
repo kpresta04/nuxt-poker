@@ -1,8 +1,14 @@
 import createDeck from "../utils/createDeck";
 const Hand = require("pokersolver").Hand;
-import { actions, createMachine, assign, interpret, spawn, send } from "xstate";
-
-const { respond } = actions;
+import {
+  actions,
+  createMachine,
+  assign,
+  interpret,
+  spawn,
+  send,
+  sendParent
+} from "xstate";
 
 // interface
 
@@ -120,7 +126,10 @@ const createPlayer = (
                       {
                         actions: [
                           smallBlindChoose,
-                          respond({ type: "RESPONSE" }, { delay: 1 })
+                          sendParent({
+                            type: "RESPONSE",
+                            value: "Turn completed"
+                          })
                         ],
                         target: "betted",
                         cond: () => true
@@ -212,7 +221,7 @@ const createPokerMachine = () => {
           entry: [takeBigBlind, takeSmallBlind],
           on: {
             RESPONSE: {
-              actions: () => console.log("hello")
+              actions: (context: any, event: any) => console.log(event.value)
             }
           }
         }
