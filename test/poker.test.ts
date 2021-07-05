@@ -37,6 +37,16 @@ const deductBetFromChips = assign({
   chips: (context: any, event: any) => context.chips - context.betAmount
 });
 
+const takeBigBlind = (context: any) => {
+  const playerId = context.playersInHand[context.bigBlindPosition];
+
+  const bigBlindPlayer = context.players.find(
+    (player: any) => player.id === playerId
+  );
+
+  bigBlindPlayer.send({ type: "DEDUCT_BIG_BLIND" });
+};
+
 const createPlayer = (
   player: any = { index: 0, chips: 1000, betAmount: 0, hand: [] }
 ) => {
@@ -61,8 +71,7 @@ const createPlayer = (
                   actions: [
                     assign({
                       hand: (context, event: any) => event.value
-                    }),
-                    sendUpdate()
+                    })
                   ]
                 }
               }
@@ -93,10 +102,12 @@ const createPlayer = (
               on: {
                 FOLD: {
                   target: "folded",
-                  actions: assign({
-                    hand: [],
-                    betAmount: () => 0
-                  })
+                  actions: [
+                    assign({
+                      hand: [],
+                      betAmount: () => 0
+                    })
+                  ]
                 }
               }
             },
@@ -137,6 +148,7 @@ const createPokerMachine = () => {
         smallBlindPosition: 0,
         bigBlindPosition: 1,
         smallBlindAmount: 5,
+        board: <any>[],
         playersInHand: [] as PlayerList
       },
       states: {
@@ -148,7 +160,7 @@ const createPokerMachine = () => {
               actions: [
                 "setPlayerNumber",
                 "spawnPlayerActors",
-                "setPlayersInHand"
+                "setPlayerLists"
               ]
             }
           }
@@ -164,6 +176,7 @@ const createPokerMachine = () => {
           //auto-deduct small blind
           //ask each player for bet, starting with small blind player
           //if all players have bet, proceed to flop
+          entry: [takeBigBlind]
         }
       }
     },
@@ -193,14 +206,36 @@ const createPokerMachine = () => {
             let playerArr = [];
             for (let i = 0; i < context.playerNumber; i++) {
               // const playerId = `player${i}`;
-              let machine = spawn(createPlayer({ index: i }), `player-${i}`);
+              let machine = spawn(createPlayer({ index: i }), { sync: true });
               playerArr.push(machine);
             }
             return playerArr;
           }
         }),
-        setPlayersInHand: assign({
-          playersInHand: (context, event) => context.players
+        setPlayerLists: assign({
+          playersInHand: (context, event) => {
+            let playerList = [] as PlayerList;
+
+            context.players.forEach((player: any) => {
+              if (player.state.value.inGame) {
+                playerList.push(player.id);
+              }
+            });
+
+            return playerList;
+          }
+          // ,
+          // playersInGame: (context, event) => {
+          //   let playerList = [] as PlayerList;
+
+          //   context.players.forEach((player: any) => {
+          //     if (player.state.value.inGame) {
+          //       playerList.push(player.id);
+          //     }
+          //   });
+
+          //   return playerList;
+          // }
         }),
         dealCards: context => {
           // console.log("dealing");
@@ -251,15 +286,16 @@ describe("poker machine", () => {
   });
 
   it("has dealt each player 2 cards", () => {
-    console.log(service.state.context.players[1].state.value);
+    // console.log(service.state.context.players[1].state.value);
+    // console.log(service.state.context.playersInGame);
     expect(service.state.context.players[1].state.context.hand.length).toEqual(
       2
     );
   });
 
-  it("player has correct state", () => {
+  it("big blind taken", () => {
     expect(service.state.context.players[1].state.value).toEqual({
-      inGame: { hasCards: "needsToBet" }
+      inGame: { hasCards: "betted" }
     });
   });
 });
