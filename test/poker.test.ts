@@ -1,14 +1,8 @@
 import createDeck from "../utils/createDeck";
 const Hand = require("pokersolver").Hand;
-import {
-  actions,
-  createMachine,
-  assign,
-  interpret,
-  spawn,
-  send,
-  sendUpdate
-} from "xstate";
+import { actions, createMachine, assign, interpret, spawn, send } from "xstate";
+
+const { respond } = actions;
 
 // interface
 
@@ -39,7 +33,7 @@ const deductBetFromChips = assign({
   // 990
 });
 
-const smallBlindRespond = assign((context: any, event: any) => {
+const smallBlindChoose = assign((context: any, event: any) => {
   const call = true;
   if (call) {
     const betAmount = 10;
@@ -124,7 +118,10 @@ const createPlayer = (
                     },
                     DEDUCT_SMALL_BLIND: [
                       {
-                        actions: [smallBlindRespond],
+                        actions: [
+                          smallBlindChoose,
+                          respond({ type: "RESPONSE" }, { delay: 1 })
+                        ],
                         target: "betted",
                         cond: () => true
                       },
@@ -184,7 +181,8 @@ const createPokerMachine = () => {
         bigBlindPosition: 1,
         smallBlindAmount: 5,
         board: <any>[],
-        playersInHand: [] as PlayerList
+        playersInHand: [] as PlayerList,
+        amountToCall: 10
       },
       states: {
         inactive: {
@@ -211,7 +209,12 @@ const createPokerMachine = () => {
           //auto-deduct small blind
           //ask each player for bet, starting with small blind player
           //if all players have bet, proceed to flop
-          entry: [takeBigBlind, takeSmallBlind]
+          entry: [takeBigBlind, takeSmallBlind],
+          on: {
+            RESPONSE: {
+              actions: () => console.log("hello")
+            }
+          }
         }
       }
     },
@@ -360,7 +363,7 @@ describe("poker machine", () => {
     expect(service.state.context.players[0].state.value).toEqual({
       inGame: { hasCards: "betted" }
     });
-    console.log(service.state.context.players[0].state.context);
+    // console.log(service.state.context.players[0].state.context);
 
     expect(service.state.context.players[0].state.context.chips).toEqual(990);
   });
