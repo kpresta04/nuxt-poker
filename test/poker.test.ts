@@ -73,14 +73,14 @@ const createPlayer = (
                 needsToBet: {
                   on: {
                     CALL: {
-                      target: ".betted",
+                      target: "betted",
                       actions: assign({
                         betAmount: (context: any, event: any) =>
                           context.betAmount + event.value
                       })
                     },
                     DEDUCT_BIG_BLIND: {
-                      target: ".betted",
+                      target: "betted",
                       actions: [setBetAmount, deductBetFromChips]
                     },
                     DEDUCT_SMALL_BLIND: {
@@ -251,9 +251,15 @@ describe("poker machine", () => {
   });
 
   it("has dealt each player 2 cards", () => {
-    console.log(service.state.context.players[1].state);
+    console.log(service.state.context.players[1].state.value);
     expect(service.state.context.players[1].state.context.hand.length).toEqual(
       2
     );
+  });
+
+  it("player has correct state", () => {
+    expect(service.state.context.players[1].state.value).toEqual({
+      inGame: { hasCards: "needsToBet" }
+    });
   });
 });
