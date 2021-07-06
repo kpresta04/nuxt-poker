@@ -76,6 +76,11 @@ const takeSmallBlind = (context: any) => {
     value: context.smallBlindAmount
   });
 };
+
+const sendCallResponse = (context: any, event: any) => {
+  console.log("send call");
+  sendParent({ type: "CALL" });
+};
 const createPlayer = (
   player: any = { index: 0, chips: 1000, betAmount: 0, hand: [], human: false }
 ) => {
@@ -111,13 +116,30 @@ const createPlayer = (
               states: {
                 needsToBet: {
                   on: {
-                    CALL: {
-                      target: "betted",
-                      actions: assign({
-                        betAmount: (context: any, event: any) =>
-                          context.betAmount + event.value
-                      })
-                    },
+                    REQUEST_BET: [
+                      {
+                        //fold
+                        cond: () => false
+                      },
+                      {
+                        //raise
+                        cond: () => false
+                      },
+                      {
+                        //call
+
+                        //set betAmount and deduct from chips
+
+                        //sendParent CALL response
+                        target: "betted",
+                        actions: [
+                          setBetAmount,
+                          deductBetFromChips,
+                          // sendCallResponse
+                          sendParent({ type: "CALL" })
+                        ]
+                      }
+                    ],
                     DEDUCT_BIG_BLIND: {
                       target: "betted",
                       actions: [setBetAmount, deductBetFromChips]
@@ -127,7 +149,7 @@ const createPlayer = (
                         actions: [
                           smallBlindChoose,
                           sendParent({
-                            type: "RESPONSE",
+                            type: "CALL",
                             value: "Turn completed"
                           })
                         ],
@@ -177,6 +199,42 @@ type PokerContext = {
   playerCount: number;
 };
 
+const allFolded = (context: any, event: any) =>
+  context.playersInHand.length < 2;
+
+const requestNextBet = (context: any, event: any) => {
+  const nextPlayer = context.players.find(
+    (player: any) => player.state.value.inGame.hasCards === "needsToBet"
+  );
+  // console.log(context.amountToCall);
+  nextPlayer &&
+    nextPlayer.send({ type: "REQUEST_BET", value: context.amountToCall });
+  // setTimeout((context: any, event: any) => {
+  // }, 1000);
+};
+
+const allPlayersHaveBet = (context: any, event: any) => {
+  console.log("check for all bets");
+  let playersInHand = context.players.filter(
+    (player: any) =>
+      player.state.value.inGame && !player.state.value.inGame.folded
+  );
+
+  let allPlayers = playersInHand.every(
+    (player: any) => player.state.value.inGame.hasCards === "betted"
+  );
+  console.log(allPlayers);
+  return allPlayers;
+};
+
+const flop = assign((context: any, event: any) => {
+  let boardArray: any = [];
+  context.deck.deal(3, [boardArray]);
+  return {
+    board: boardArray
+  };
+});
+
 const createPokerMachine = () => {
   return createMachine(
     {
@@ -220,11 +278,38 @@ const createPokerMachine = () => {
           //if all players have bet, proceed to flop
           entry: [takeBigBlind, takeSmallBlind],
           on: {
-            RESPONSE: {
-              actions: (context: any, event: any) => console.log(event.value)
-            }
+            CALL: [
+              {
+                target: "secondBettingRound",
+                cond: allPlayersHaveBet
+              },
+              {
+                // send bet request to next player
+                actions: requestNextBet
+              }
+            ],
+            RAISE: {
+              // raise context.amountToCall,
+              // set all Other Players to needsToBet
+              // ask next player for bet
+              actions: (context: any, event: any) => console.log("raised")
+            },
+            FOLD: [
+              {
+                cond: allFolded,
+                // all other players have folded, go to end
+                target: "#poker.end"
+              },
+              {
+                actions: requestNextBet
+              }
+            ]
           }
-        }
+        },
+        secondBettingRound: {
+          entry: () => console.log("arrived at 2nd betting round")
+        },
+        end: {}
       }
     },
     {
@@ -330,16 +415,16 @@ describe("poker machine", () => {
   let poker: any;
   let service: any;
   // console.log(poker);
-  beforeEach(() => {
-    poker = createPokerMachine();
-    service = interpret(poker).start();
-    service.send({
-      type: "CHOOSE_PLAYER_NUMBER",
-      value: 6
-    });
-
-    // console.log(poker);
+  poker = createPokerMachine();
+  service = interpret(poker).start();
+  service.send({
+    type: "CHOOSE_PLAYER_NUMBER",
+    value: 6
   });
+  // beforeEach(() => {
+
+  //   // console.log(poker);
+  // });
   it("has been created sucessfully", () => {
     expect(poker.context).toBeTruthy();
   });
@@ -375,5 +460,9 @@ describe("poker machine", () => {
     // console.log(service.state.context.players[0].state.context);
 
     expect(service.state.context.players[0].state.context.chips).toEqual(990);
+  });
+
+  it("all bets deducted", () => {
+    expect(service.state.context.players[4].state.context.chips).toEqual(990);
   });
 });
