@@ -22,6 +22,7 @@ type PlayerContext = {
   chips?: number;
   betAmount?: number;
   hand?: any;
+  human: boolean;
 };
 
 type PlayerList = any;
@@ -81,6 +82,8 @@ const sendCallResponse = (context: any, event: any) => {
   console.log("send call");
   sendParent({ type: "CALL" });
 };
+
+const isHuman = (context: PlayerContext, event: any) => context.human;
 const createPlayer = (
   player: any = { index: 0, chips: 1000, betAmount: 0, hand: [], human: false }
 ) => {
@@ -117,6 +120,11 @@ const createPlayer = (
                 needsToBet: {
                   on: {
                     REQUEST_BET: [
+                      // {
+                      //   //update ui
+                      //   cond: isHuman,
+                      //   actions: [() => console.log("waiting for human")]
+                      // },
                       {
                         //fold
                         cond: () => false
@@ -145,6 +153,10 @@ const createPlayer = (
                       actions: [setBetAmount, deductBetFromChips]
                     },
                     DEDUCT_SMALL_BLIND: [
+                      // {
+                      //   cond: isHuman,
+                      //   actions: [() => console.log("waiting for human")]
+                      // },
                       {
                         actions: [
                           smallBlindChoose,
@@ -160,7 +172,13 @@ const createPlayer = (
                     ]
                   }
                 },
-                betted: {}
+                betted: {
+                  on: {
+                    BET_RESET: {
+                      target: "needsToBet"
+                    }
+                  }
+                }
               },
               on: {
                 FOLD: {
@@ -208,7 +226,10 @@ const requestNextBet = (context: any, event: any) => {
   );
   // console.log(context.amountToCall);
   nextPlayer &&
-    nextPlayer.send({ type: "REQUEST_BET", value: context.amountToCall });
+    nextPlayer.send(
+      { type: "REQUEST_BET", value: context.amountToCall },
+      { delay: 1000 }
+    );
   // setTimeout((context: any, event: any) => {
   // }, 1000);
 };
@@ -227,6 +248,15 @@ const allPlayersHaveBet = (context: any, event: any) => {
   return allPlayers;
 };
 
+const resetAllBets = (context: any, event: any) => {
+  const inGamePlayers = context.players.filter(
+    (player: any) => player.state.value.inGame
+  );
+
+  inGamePlayers.forEach((player: any) => {
+    player.send({ type: "BET_RESET" });
+  });
+};
 const flop = assign((context: any, event: any) => {
   let boardArray: any = [];
   context.deck.deal(3, [boardArray]);
@@ -277,6 +307,7 @@ const createPokerMachine = () => {
           //ask each player for bet, starting with small blind player
           //if all players have bet, proceed to flop
           entry: [takeBigBlind, takeSmallBlind],
+          exit: flop,
           on: {
             CALL: [
               {
@@ -307,9 +338,15 @@ const createPokerMachine = () => {
           }
         },
         secondBettingRound: {
-          entry: () => console.log("arrived at 2nd betting round")
+          entry: [
+            () => console.log("arrived at 2nd betting round"),
+            resetAllBets
+          ]
         },
-        end: {}
+        end: {
+          //check winner
+          //set smallBlind position +1
+        }
       }
     },
     {
@@ -422,7 +459,7 @@ describe("poker machine", () => {
     value: 6
   });
   // beforeEach(() => {
-
+  //   setTimeout(() => {}, 1250);
   //   // console.log(poker);
   // });
   it("has been created sucessfully", () => {
@@ -445,24 +482,38 @@ describe("poker machine", () => {
   });
 
   it("big blind taken", () => {
-    expect(service.state.context.players[1].state.value).toEqual({
-      inGame: { hasCards: "betted" }
-    });
+    // expect(service.state.context.players[1].state.value).toEqual({
+    //   inGame: { hasCards: "betted" }
+    // });
     // console.log(service.state.context.players[1].state.context);
 
     expect(service.state.context.players[1].state.context.chips).toEqual(990);
   });
 
   it("small blind taken", () => {
-    expect(service.state.context.players[0].state.value).toEqual({
-      inGame: { hasCards: "betted" }
-    });
+    // expect(service.state.context.players[0].state.value).toEqual({
+    //   inGame: { hasCards: "betted" }
+    // });
     // console.log(service.state.context.players[0].state.context);
 
     expect(service.state.context.players[0].state.context.chips).toEqual(990);
   });
 
-  it("all bets deducted", () => {
-    expect(service.state.context.players[4].state.context.chips).toEqual(990);
-  });
+  // it("all bets deducted", () => {
+  //   expect(service.state.context.players[4].state.context.chips).toEqual(990);
+  // });
+
+  // it("board has 3 cards", () => {
+  //   // console.log(service.state.context.board);
+
+  //   expect(service.state.context.board.length).toEqual(3);
+  // });
+
+  // it("all players need to bet", () => {
+  //   expect(
+  //     service.state.context.players.every(
+  //       (player: any) => player.state.value.inGame.hasCards === "needsToBet"
+  //     )
+  //   ).toBeTruthy();
+  // });
 });
