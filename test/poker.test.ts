@@ -27,13 +27,27 @@ type PlayerContext = {
 
 type PlayerList = any;
 
-const setBetAmount = assign({
-  betAmount: (context: any, event: any) =>
-    context.chips > context.betAmount + event.value
-      ? context.betAmount + event.value
-      : context.chips
-  // 10
+const setBetAmount = assign((context: any, event: any) => {
+  let betAmount;
+  if (context.chips > context.betAmount + event.value) {
+    //enough chips to cover bet
+    betAmount = context.betAmount + event.value;
+  } else {
+    //all in
+    betAmount = context.chips;
+  }
+  return {
+    betAmount
+  };
 });
+
+// const setBetAmount = assign({
+//   betAmount: (context: any, event: any) =>
+//     context.chips > context.betAmount + event.value
+//       ? context.betAmount + event.value
+//       : context.chips
+//   // 10
+// });
 
 const deductBetFromChips = assign({
   chips: (context: any, event: any) => context.chips - context.betAmount
@@ -66,12 +80,15 @@ const takeBigBlind = (context: any) => {
 };
 
 const takeSmallBlind = (context: any) => {
-  const playerId = context.playersInHand[context.smallBlindPosition];
+  // const playerId = context.playersInHand[context.smallBlindPosition];
 
-  const smallBlindPlayer = context.players.find(
-    (player: any) => player.id === playerId
+  // const smallBlindPlayer = context.players.find(
+  //   (player: any) => player.id === playerId
+  // );
+  const playersInHand = context.players.filter(
+    (player: any) => player.state.value.inGame
   );
-
+  const smallBlindPlayer = playersInHand[context.smallBlindPosition];
   smallBlindPlayer.send({
     type: "DEDUCT_SMALL_BLIND",
     value: context.smallBlindAmount
@@ -119,15 +136,35 @@ const createPlayer = (
               states: {
                 needsToBet: {
                   on: {
+                    HUMAN_FOLD: {
+                      target: "#player-bot.inGame.folded",
+                      actions: [
+                        assign({
+                          hand: [],
+                          betAmount: () => 0
+                        }),
+                        sendParent({ type: "FOLD" })
+                      ]
+                    },
+                    HUMAN_CALL_SMALL_BLIND: {
+                      target: "betted",
+                      actions: [
+                        deductBetFromChips,
+                        setBetAmount,
+                        // sendCallResponse
+                        sendParent({ type: "CALL" })
+                      ]
+                    },
                     REQUEST_BET: [
-                      // {
-                      //   //update ui
-                      //   cond: isHuman,
-                      //   actions: [() => console.log("waiting for human")]
-                      // },
+                      {
+                        //update ui
+                        cond: isHuman,
+                        actions: [() => console.log("waiting for human to bet")]
+                      },
                       {
                         //fold
-                        cond: () => false
+                        cond: () => false,
+                        actions: [sendParent({ type: "FOLD" })]
                       },
                       {
                         //raise
@@ -153,10 +190,15 @@ const createPlayer = (
                       actions: [setBetAmount, deductBetFromChips]
                     },
                     DEDUCT_SMALL_BLIND: [
-                      // {
-                      //   cond: isHuman,
-                      //   actions: [() => console.log("waiting for human")]
-                      // },
+                      {
+                        // update ui
+                        cond: isHuman,
+                        actions: [
+                          () => console.log("waiting for human small blind"),
+                          setBetAmount,
+                          deductBetFromChips
+                        ]
+                      },
                       {
                         actions: [
                           smallBlindChoose,
@@ -178,17 +220,6 @@ const createPlayer = (
                       target: "needsToBet"
                     }
                   }
-                }
-              },
-              on: {
-                FOLD: {
-                  target: "folded",
-                  actions: [
-                    assign({
-                      hand: [],
-                      betAmount: () => 0
-                    })
-                  ]
                 }
               }
             },
@@ -495,25 +526,30 @@ describe("poker machine", () => {
     //   inGame: { hasCards: "betted" }
     // });
     // console.log(service.state.context.players[0].state.context);
+    service.state.context.players[0].send({
+      type: "HUMAN_CALL_SMALL_BLIND",
+      value: 5
+    });
 
+    // console.log(service.state.context.players[0].state.context);
     expect(service.state.context.players[0].state.context.chips).toEqual(990);
   });
 
-  // it("all bets deducted", () => {
-  //   expect(service.state.context.players[4].state.context.chips).toEqual(990);
-  // });
+  it("all bets deducted", () => {
+    expect(service.state.context.players[4].state.context.chips).toEqual(990);
+  });
 
-  // it("board has 3 cards", () => {
-  //   // console.log(service.state.context.board);
+  it("board has 3 cards", () => {
+    // console.log(service.state.context.board);
 
-  //   expect(service.state.context.board.length).toEqual(3);
-  // });
+    expect(service.state.context.board.length).toEqual(3);
+  });
 
-  // it("all players need to bet", () => {
-  //   expect(
-  //     service.state.context.players.every(
-  //       (player: any) => player.state.value.inGame.hasCards === "needsToBet"
-  //     )
-  //   ).toBeTruthy();
-  // });
+  it("all players need to bet", () => {
+    expect(
+      service.state.context.players.every(
+        (player: any) => player.state.value.inGame.hasCards === "needsToBet"
+      )
+    ).toBeTruthy();
+  });
 });
