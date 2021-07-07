@@ -1,7 +1,7 @@
 <template>
   <div class="blackJackBoard">
     <h1 class="np-title top-down">
-      Blitz Poker
+      Poker Blitz
     </h1>
 
     <div class="buttons from-opaque">
@@ -35,9 +35,6 @@ export default Vue.extend({});
   margin: 0 auto;
   max-width: 50vw;
   /* margin-top: 1rem; */
-  button {
-    /* margin: 4rem; */
-  }
 }
 .np-title {
   font-family: "Lobster", cursive !important;
