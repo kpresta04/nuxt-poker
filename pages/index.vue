@@ -1,7 +1,7 @@
 <template>
   <div class="blackJackBoard">
     <h1 class="np-title top-down">
-      Nxt Poker
+      Blitz Poker
     </h1>
 
     <div class="buttons from-opaque">
