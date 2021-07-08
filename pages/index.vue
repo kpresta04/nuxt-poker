@@ -1,5 +1,5 @@
 <template>
-  <div class="blackJackBoard">
+  <div class="pokerBoard">
     <h1 class="np-title top-down">
       Poker Blitz
     </h1>
@@ -51,24 +51,7 @@ export default Vue.extend({});
 .opaque {
   opacity: 0.5;
 }
-.blackJackBoard {
-  color: white;
-  height: auto;
-  min-height: 100vh;
-  margin: 0;
-  background: radial-gradient(#34b445, #000000);
-  background-repeat: repeat-y;
-  background-color: #000000;
-  box-shadow: 5px 1px 10px #000000;
-  /* display: flex; */
-  /* place-items: center; */
-  flex-wrap: wrap;
-  position: relative;
-  /* display: grid;
-  
-  grid-template-rows: repeat(5, 1fr); */
-  /* grid-template-columns: repeat(4, 1fr); */
-}
+
 .cardsDiv {
   margin: 0 auto 5rem auto;
 }
