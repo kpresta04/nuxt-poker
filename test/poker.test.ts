@@ -79,6 +79,9 @@ describe("poker machine", () => {
   });
 
   it("all players need to bet", () => {
+    // console.log(service.state);
+
+    // console.log(service.state.context.players[1].state);
     expect(
       service.state.context.players.every(
         (player: any) => player.state.value.inGame.hasCards === "needsToBet"

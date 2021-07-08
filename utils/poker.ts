@@ -153,7 +153,7 @@ export const createPlayer = (
                         deductBetFromChips,
                         setBetAmount,
                         // sendCallResponse
-                        sendParent({ type: "CALL" })
+                        sendParent({ type: "SMALL_BLIND_RESPONSE" })
                       ]
                     },
                     REQUEST_BET: [
@@ -210,7 +210,7 @@ export const createPlayer = (
                         actions: [
                           smallBlindChoose,
                           sendParent({
-                            type: "CALL",
+                            type: "SMALL_BLIND_RESPONSE",
                             value: "Turn completed"
                           })
                         ],
@@ -302,6 +302,20 @@ const flop = assign((context: any, event: any) => {
     board: boardArray
   };
 });
+const turn = assign((context: any, event: any) => {
+  let boardArray: any = context.board;
+  context.deck.deal(1, [boardArray]);
+  return {
+    board: boardArray
+  };
+});
+const river = assign((context: any, event: any) => {
+  let boardArray: any = context.board;
+  context.deck.deal(1, [boardArray]);
+  return {
+    board: boardArray
+  };
+});
 const resetAmountToCall = assign({
   amountToCall: (context: any, event: any) => 0
 });
@@ -337,16 +351,25 @@ export const createPokerMachine = () => {
         },
         dealing: {
           always: {
-            target: "gatheringFirstBlinds",
+            target: "gatheringBlinds",
             actions: "dealCards"
           }
         },
-        gatheringFirstBlinds: {
+        gatheringBlinds: {
           //auto-deduct big blind,
           //auto-deduct small blind
+          entry: [takeBigBlind, takeSmallBlind],
+
+          on: {
+            SMALL_BLIND_RESPONSE: {
+              target: "firstBettingRound"
+            }
+          }
+        },
+        firstBettingRound: {
           //ask each player for bet, starting with small blind player
           //if all players have bet, proceed to flop
-          entry: [takeBigBlind, takeSmallBlind],
+          entry: requestNextBet,
           exit: flop,
           on: {
             CALL: [
@@ -384,6 +407,7 @@ export const createPokerMachine = () => {
             resetAmountToCall,
             requestNextBet
           ],
+          exit: turn,
           on: {
             CALL: [
               {
@@ -424,9 +448,100 @@ export const createPokerMachine = () => {
           }
         },
         thirdBettingRound: {
-          entry: () => console.log("arrived at 3rd betting round")
+          entry: [
+            () => console.log("arrived at 3rd betting round"),
+            resetAllBets,
+            resetAmountToCall,
+            requestNextBet
+          ],
+          exit: river,
+          on: {
+            CALL: [
+              {
+                target: "fourthBettingRound",
+                cond: allPlayersHaveBet
+              },
+              {
+                // send bet request to next player
+                actions: requestNextBet
+              }
+            ],
+            CHECK: [
+              {
+                target: "fourthBettingRound",
+                cond: allPlayersHaveBet
+              },
+              {
+                // send bet request to next player
+                actions: requestNextBet
+              }
+            ],
+            RAISE: {
+              // raise context.amountToCall,
+              // set all Other Players to needsToBet
+              // ask next player for bet
+              actions: (context: any, event: any) => console.log("raised")
+            },
+            FOLD: [
+              {
+                cond: allFolded,
+                // all other players have folded, go to end
+                target: "#poker.end"
+              },
+              {
+                actions: requestNextBet
+              }
+            ]
+          }
+        },
+        fourthBettingRound: {
+          entry: [
+            () => console.log("arrived at 4th betting round"),
+            resetAllBets,
+            resetAmountToCall,
+            requestNextBet
+          ],
+          on: {
+            CALL: [
+              {
+                target: "fourthBettingRound",
+                cond: allPlayersHaveBet
+              },
+              {
+                // send bet request to next player
+                actions: requestNextBet
+              }
+            ],
+            CHECK: [
+              {
+                target: "fourthBettingRound",
+                cond: allPlayersHaveBet
+              },
+              {
+                // send bet request to next player
+                actions: requestNextBet
+              }
+            ],
+            RAISE: {
+              // raise context.amountToCall,
+              // set all Other Players to needsToBet
+              // ask next player for bet
+              actions: (context: any, event: any) => console.log("raised")
+            },
+            FOLD: [
+              {
+                cond: allFolded,
+                // all other players have folded, go to end
+                target: "#poker.end"
+              },
+              {
+                actions: requestNextBet
+              }
+            ]
+          }
         },
         end: {
+          entry: [() => console.log("arrived at end")]
           //check winner
           //set smallBlind position +1
         }
