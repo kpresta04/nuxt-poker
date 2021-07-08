@@ -171,6 +171,12 @@ const createPlayer = (
                         cond: () => false
                       },
                       {
+                        //check
+                        cond: (context: any, event: any) => event.value === 0,
+                        target: "betted",
+                        actions: sendParent({ type: "CHECK" })
+                      },
+                      {
                         //call
 
                         //set betAmount and deduct from chips
@@ -295,7 +301,9 @@ const flop = assign((context: any, event: any) => {
     board: boardArray
   };
 });
-
+const resetAmountToCall = assign({
+  amountToCall: (context: any, event: any) => 0
+});
 const createPokerMachine = () => {
   return createMachine(
     {
@@ -371,8 +379,51 @@ const createPokerMachine = () => {
         secondBettingRound: {
           entry: [
             () => console.log("arrived at 2nd betting round"),
-            resetAllBets
-          ]
+            resetAllBets,
+            resetAmountToCall,
+            requestNextBet
+          ],
+          on: {
+            CALL: [
+              {
+                target: "thirdBettingRound",
+                cond: allPlayersHaveBet
+              },
+              {
+                // send bet request to next player
+                actions: requestNextBet
+              }
+            ],
+            CHECK: [
+              {
+                target: "thirdBettingRound",
+                cond: allPlayersHaveBet
+              },
+              {
+                // send bet request to next player
+                actions: requestNextBet
+              }
+            ],
+            RAISE: {
+              // raise context.amountToCall,
+              // set all Other Players to needsToBet
+              // ask next player for bet
+              actions: (context: any, event: any) => console.log("raised")
+            },
+            FOLD: [
+              {
+                cond: allFolded,
+                // all other players have folded, go to end
+                target: "#poker.end"
+              },
+              {
+                actions: requestNextBet
+              }
+            ]
+          }
+        },
+        thirdBettingRound: {
+          entry: () => console.log("arrived at 3rd betting round")
         },
         end: {
           //check winner
