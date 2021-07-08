@@ -96,6 +96,22 @@ const takeSmallBlind = (context: any) => {
   });
 };
 
+const requestFirstBet = (context: any) => {
+  // const playerId = context.playersInHand[context.smallBlindPosition];
+
+  // const smallBlindPlayer = context.players.find(
+  //   (player: any) => player.id === playerId
+  // );
+  const playersInHand = context.players.filter(
+    (player: any) => player.state.value.inGame
+  );
+  const firstPlayer = playersInHand[context.smallBlindPosition];
+  firstPlayer.send({
+    type: "REQUEST_BET",
+    value: 0
+  });
+};
+
 const sendCallResponse = (context: any, event: any) => {
   console.log("send call");
   sendParent({ type: "CALL" });
@@ -109,13 +125,7 @@ export const createPlayer = (
     {
       id: `player-bot`,
       initial: "inGame",
-      context: {
-        index: player.index,
-        chips: player.chips,
-        betAmount: player.betAmount,
-        hand: player.hand,
-        human: player.human
-      },
+      context: player,
       states: {
         inGame: {
           initial: "noCards",
@@ -126,7 +136,7 @@ export const createPlayer = (
                   target: "hasCards",
                   actions: [
                     assign({
-                      hand: (context, event: any) => event.value
+                      hand: (_context, event: any) => event.value
                     })
                   ]
                 }
@@ -173,7 +183,7 @@ export const createPlayer = (
                       },
                       {
                         //check
-                        cond: (context: any, event: any) => event.value === 0,
+                        cond: (_context: any, event: any) => event.value === 0,
                         target: "betted",
                         actions: sendParent({ type: "CHECK" })
                       },
@@ -273,7 +283,7 @@ const requestNextBet = (context: any, event: any) => {
 };
 
 const allPlayersHaveBet = (context: any, event: any) => {
-  console.log("check for all bets");
+  // console.log("check for all bets");
   let playersInHand = context.players.filter(
     (player: any) =>
       player.state.value.inGame && !player.state.value.inGame.folded
@@ -282,7 +292,7 @@ const allPlayersHaveBet = (context: any, event: any) => {
   let allPlayers = playersInHand.every(
     (player: any) => player.state.value.inGame.hasCards === "betted"
   );
-  console.log(allPlayers);
+  // console.log(allPlayers);
   return allPlayers;
 };
 
@@ -405,7 +415,7 @@ export const createPokerMachine = () => {
             () => console.log("arrived at 2nd betting round"),
             resetAllBets,
             resetAmountToCall,
-            requestNextBet
+            requestFirstBet
           ],
           exit: turn,
           on: {
@@ -504,7 +514,7 @@ export const createPokerMachine = () => {
           on: {
             CALL: [
               {
-                target: "fourthBettingRound",
+                target: "end",
                 cond: allPlayersHaveBet
               },
               {
@@ -514,7 +524,7 @@ export const createPokerMachine = () => {
             ],
             CHECK: [
               {
-                target: "fourthBettingRound",
+                target: "end",
                 cond: allPlayersHaveBet
               },
               {

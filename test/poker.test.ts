@@ -70,22 +70,13 @@ describe("poker machine", () => {
 
   it("all bets deducted", () => {
     expect(service.state.context.players[4].state.context.chips).toEqual(990);
+    // console.log(service.state.context.players[0].state.context);
   });
 
-  it("board has 3 cards", () => {
-    // console.log(service.state.context.board);
+  // it("board has 5 cards", () => {
+  //   console.log(service.state.context);
 
-    expect(service.state.context.board.length).toEqual(3);
-  });
-
-  it("all players need to bet", () => {
-    // console.log(service.state);
-
-    // console.log(service.state.context.players[1].state);
-    expect(
-      service.state.context.players.every(
-        (player: any) => player.state.value.inGame.hasCards === "needsToBet"
-      )
-    ).toBeTruthy();
-  });
+  //   service.state.value === "end" &&
+  //     expect(service.state.context.board.length).toEqual(5);
+  // });
 });
