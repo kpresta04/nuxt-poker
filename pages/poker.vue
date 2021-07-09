@@ -81,7 +81,7 @@ export default {
       value: 5
     });
 
-    // console.log("serv");
+    // console.log(this.service.state);
   }
 };
 </script>
