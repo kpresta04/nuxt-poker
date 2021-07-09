@@ -1,0 +1,83 @@
+@import "normalize.css";
+body {
+  font-family: "Source Sans Pro", sans-serif !important;
+}
+.pokerBoard {
+  color: white;
+  height: auto;
+  min-height: 100vh;
+  margin: 0;
+  background: radial-gradient(#34b445, #000000);
+  background-repeat: repeat-y;
+  background-color: #000000;
+  box-shadow: 5px 1px 10px #000000;
+  /* display: flex; */
+  /* place-items: center; */
+  flex-wrap: wrap;
+  position: relative;
+  /* display: grid;
+  
+  grid-template-rows: repeat(5, 1fr); */
+  /* grid-template-columns: repeat(4, 1fr); */
+}
+.button {
+  font-family: "Source Sans Pro", sans-serif;
+  padding: 1.2rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border-radius: 4px;
+  letter-spacing: 2px;
+  color: white !important;
+  text-decoration: none;
+  text-transform: uppercase;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.bg-dark-red {
+  background-color: hsl(0, 73%, 41%);
+}
+.bg-black {
+  background-color: black;
+}
+
+.from-opaque {
+  animation-name: from-opaque;
+  animation-timing-function: cubic-bezier(0.5, 0, 0.2, 1);
+  animation-duration: 1000ms;
+  animation-delay: 1500ms;
+  animation-iteration-count: 1;
+  animation-fill-mode: both;
+}
+@keyframes from-opaque {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+.top-down {
+  animation-name: top-down;
+  animation-timing-function: cubic-bezier(0.5, 0, 0.2, 1);
+  animation-duration: 800ms;
+  animation-iteration-count: 1;
+  animation-fill-mode: both;
+}
+@keyframes top-down {
+  from {
+    opacity: 0;
+    transform: translate3d(0px, -100%, 0px) scale3d(1, 1, 1) rotateX(0deg)
+      rotateY(0deg) rotateZ(0deg) skew(0deg, 0deg);
+    transform-style: preserve-3d;
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0px, 0px, 0px) scale3d(1, 1, 1) rotateX(0deg)
+      rotateY(0deg) rotateZ(0deg) skew(0deg, 0deg);
+    transform-style: preserve-3d;
+  }
+}
