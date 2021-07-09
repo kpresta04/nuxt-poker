@@ -20,7 +20,7 @@ describe("poker machine", () => {
   service = interpret(poker).start();
   service.send({
     type: "CHOOSE_PLAYER_NUMBER",
-    value: 6
+    value: 7
   });
   // beforeEach(() => {
   //   setTimeout(() => {}, 1250);
@@ -70,7 +70,7 @@ describe("poker machine", () => {
 
   it("all bets deducted", () => {
     expect(service.state.context.players[4].state.context.chips).toEqual(990);
-    // console.log(service.state.context.players[0].state.context);
+    console.log(service.state.context.pot);
   });
 
   // it("board has 5 cards", () => {

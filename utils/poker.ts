@@ -157,13 +157,23 @@ export const createPlayer = (
                         sendParent({ type: "FOLD" })
                       ]
                     },
+                    HUMAN_FOLD_SMALL_BLIND: {
+                      target: "#player-bot.inGame.folded",
+                      actions: [
+                        assign({
+                          hand: [],
+                          betAmount: () => 0
+                        }),
+                        sendParent({ type: "SMALL_BLIND_RESPONSE", value: 5 })
+                      ]
+                    },
                     HUMAN_CALL_SMALL_BLIND: {
                       target: "betted",
                       actions: [
                         deductBetFromChips,
                         setBetAmount,
                         // sendCallResponse
-                        sendParent({ type: "SMALL_BLIND_RESPONSE" })
+                        sendParent({ type: "SMALL_BLIND_RESPONSE", value: 10 })
                       ]
                     },
                     REQUEST_BET: [
@@ -198,13 +208,22 @@ export const createPlayer = (
                           setBetAmount,
                           deductBetFromChips,
                           // sendCallResponse
-                          sendParent({ type: "CALL" })
+                          sendParent((context: any, event: any) => {
+                            return {
+                              type: "CALL",
+                              value: event.value
+                            };
+                          })
                         ]
                       }
                     ],
                     DEDUCT_BIG_BLIND: {
                       target: "betted",
-                      actions: [setBetAmount, deductBetFromChips]
+                      actions: [
+                        setBetAmount,
+                        deductBetFromChips,
+                        sendParent({ type: "BIG_BLIND_RESPONSE", value: 10 })
+                      ]
                     },
                     DEDUCT_SMALL_BLIND: [
                       {
@@ -221,7 +240,7 @@ export const createPlayer = (
                           smallBlindChoose,
                           sendParent({
                             type: "SMALL_BLIND_RESPONSE",
-                            value: "Turn completed"
+                            value: 10
                           })
                         ],
                         target: "betted",
@@ -326,6 +345,11 @@ const river = assign((context: any, event: any) => {
     board: boardArray
   };
 });
+const addBetToPot = assign((context: any, event: any) => {
+  return {
+    pot: context.pot + event.value
+  };
+});
 const resetAmountToCall = assign({
   amountToCall: (context: any, event: any) => 0
 });
@@ -342,6 +366,7 @@ export const createPokerMachine = () => {
         bigBlindPosition: 1,
         smallBlindAmount: 5,
         board: <any>[],
+        pot: 0,
         playersInHand: [] as PlayerList,
         amountToCall: 10
       },
@@ -372,7 +397,11 @@ export const createPokerMachine = () => {
 
           on: {
             SMALL_BLIND_RESPONSE: {
+              actions: addBetToPot,
               target: "firstBettingRound"
+            },
+            BIG_BLIND_RESPONSE: {
+              actions: addBetToPot
             }
           }
         },
@@ -384,19 +413,24 @@ export const createPokerMachine = () => {
           on: {
             CALL: [
               {
+                actions: addBetToPot,
                 target: "secondBettingRound",
                 cond: allPlayersHaveBet
               },
               {
                 // send bet request to next player
-                actions: requestNextBet
+                actions: [requestNextBet, addBetToPot]
               }
             ],
             RAISE: {
               // raise context.amountToCall,
               // set all Other Players to needsToBet
               // ask next player for bet
-              actions: (context: any, event: any) => console.log("raised")
+
+              actions: [
+                (context: any, event: any) => console.log("raised"),
+                addBetToPot
+              ]
             },
             FOLD: [
               {
@@ -421,12 +455,13 @@ export const createPokerMachine = () => {
           on: {
             CALL: [
               {
+                actions: addBetToPot,
                 target: "thirdBettingRound",
                 cond: allPlayersHaveBet
               },
               {
                 // send bet request to next player
-                actions: requestNextBet
+                actions: [addBetToPot, requestNextBet]
               }
             ],
             CHECK: [
@@ -443,7 +478,10 @@ export const createPokerMachine = () => {
               // raise context.amountToCall,
               // set all Other Players to needsToBet
               // ask next player for bet
-              actions: (context: any, event: any) => console.log("raised")
+              actions: [
+                (context: any, event: any) => console.log("raised"),
+                addBetToPot
+              ]
             },
             FOLD: [
               {
@@ -468,12 +506,13 @@ export const createPokerMachine = () => {
           on: {
             CALL: [
               {
+                actions: addBetToPot,
                 target: "fourthBettingRound",
                 cond: allPlayersHaveBet
               },
               {
                 // send bet request to next player
-                actions: requestNextBet
+                actions: [addBetToPot, requestNextBet]
               }
             ],
             CHECK: [
@@ -490,7 +529,10 @@ export const createPokerMachine = () => {
               // raise context.amountToCall,
               // set all Other Players to needsToBet
               // ask next player for bet
-              actions: (context: any, event: any) => console.log("raised")
+              actions: [
+                addBetToPot,
+                (context: any, event: any) => console.log("raised")
+              ]
             },
             FOLD: [
               {
@@ -514,12 +556,13 @@ export const createPokerMachine = () => {
           on: {
             CALL: [
               {
+                actions: addBetToPot,
                 target: "end",
                 cond: allPlayersHaveBet
               },
               {
                 // send bet request to next player
-                actions: requestNextBet
+                actions: [addBetToPot, requestNextBet]
               }
             ],
             CHECK: [
@@ -536,7 +579,10 @@ export const createPokerMachine = () => {
               // raise context.amountToCall,
               // set all Other Players to needsToBet
               // ask next player for bet
-              actions: (context: any, event: any) => console.log("raised")
+              actions: [
+                addBetToPot,
+                (context: any, event: any) => console.log("raised")
+              ]
             },
             FOLD: [
               {
