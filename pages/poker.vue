@@ -58,8 +58,7 @@ export default {
         });
       } else {
         this.service.state.context.players[0].send({
-          type: "CHECK",
-          value: 0
+          type: "HUMAN_CHECK"
         });
       }
     }

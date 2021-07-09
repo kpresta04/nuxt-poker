@@ -270,7 +270,26 @@ export const createPlayer = (
                               value: 10
                             })
                           ]
-                        }
+                        },
+                        HUMAN_CALL: {
+                          target: "#player-bot.inGame.hasCards.betted",
+                          actions: [
+                            setBetAmount,
+                            deductBetFromChips,
+                            // sendCallResponse
+                            sendParent((context: any, event: any) => {
+                              return {
+                                type: "CALL",
+                                value: event.value
+                              };
+                            })
+                          ]
+                        },
+                        HUMAN_CHECK: {
+                          target: "#player-bot.inGame.hasCards.betted",
+                          actions: sendParent({ type: "CHECK" })
+                        },
+                        HUMAN_RAISE: {}
                       }
                     }
                   }
