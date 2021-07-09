@@ -82,7 +82,7 @@ export default {
     this.service = interpret(this.poker)
       .onTransition(state => {
         // elApp.dataset.state = state.toStrings().join(' ');
-        console.log(state);
+        // console.log(state);
         // this.pokerGame = state;
       })
       .start();

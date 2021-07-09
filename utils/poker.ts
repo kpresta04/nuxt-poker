@@ -545,7 +545,7 @@ export const createPokerMachine = () => {
             () => console.log("arrived at 3rd betting round"),
             resetAllBets,
             resetAmountToCall,
-            requestNextBet
+            requestFirstBet
           ],
           exit: river,
           on: {
@@ -596,7 +596,7 @@ export const createPokerMachine = () => {
             () => console.log("arrived at 4th betting round"),
             resetAllBets,
             resetAmountToCall,
-            requestNextBet
+            requestFirstBet
           ],
           on: {
             CALL: [
