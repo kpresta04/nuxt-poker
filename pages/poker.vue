@@ -1,11 +1,22 @@
 <template>
   <div class="pokerBoard">
     <div class="boardInfo">
-      <div class="cards"></div>
+      <div class="cards">
+        {{
+          service && service.state.context.board.length > 0
+            ? service.state.context.board.map(card => card.shortString)
+            : ""
+        }}
+      </div>
     </div>
     <div class="humanCards">
       <div class="cards">
-        {{ (humanHand && humanHand.map(card => card.shortString)) || "" }}
+        {{
+          service &&
+            service.state.context.players[0]._state.context.hand.map(
+              card => card.shortString || ""
+            )
+        }}
       </div>
       <div class="controls">
         <button class="button">Call</button>
@@ -38,28 +49,27 @@ export default {
       service: null
     };
   },
-  computed: {
-    humanHand: function() {
-      if (this.pokerGame && this.pokerGame.children[1]) {
-        return this.pokerGame.children[1]._state.context.hand || [];
-      } else {
-        return [];
-      }
-    }
-  },
+  // computed: {
+  //   humanHand: function() {
+  //     if (this.pokerGame && this.pokerGame.children[1]) {
+  //       return this.pokerGame.children[1]._state.context.hand || [];
+  //     } else {
+  //       return [];
+  //     }
+  //   }
+  // },
   mounted() {
     // let poker;
     // let service;
-
     //
     // // console.log(poker);
     // poker = createPokerMachine();
     this.service = interpret(this.poker)
-      .onTransition(state => {
-        // elApp.dataset.state = state.toStrings().join(' ');
-        // console.log(state);
-        this.pokerGame = state;
-      })
+      // .onTransition(state => {
+      //   // elApp.dataset.state = state.toStrings().join(' ');
+      //   console.log(state);
+      //   this.pokerGame = state;
+      // })
       .start();
 
     this.service.send({
@@ -70,7 +80,8 @@ export default {
       type: "HUMAN_CALL_SMALL_BLIND",
       value: 5
     });
-    // console.log(service);
+
+    // console.log("serv");
   }
 };
 </script>
