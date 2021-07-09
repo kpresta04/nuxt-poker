@@ -19,7 +19,7 @@
         }}
       </div>
       <div class="controls">
-        <button class="button">Call</button>
+        <button @click="hello" class="button">Call</button>
         <button class="button">Fold</button>
       </div>
     </div>
@@ -49,6 +49,22 @@ export default {
       service: null
     };
   },
+  methods: {
+    hello: function() {
+      if (this.service.state.value === "gatheringBlinds") {
+        this.service.state.context.players[0].send({
+          type: "HUMAN_CALL_SMALL_BLIND",
+          value: 5
+        });
+      } else {
+        this.service.state.context.players[0].send({
+          type: "CHECK",
+          value: 0
+        });
+      }
+    }
+  },
+
   // computed: {
   //   humanHand: function() {
   //     if (this.pokerGame && this.pokerGame.children[1]) {
@@ -65,21 +81,21 @@ export default {
     // // console.log(poker);
     // poker = createPokerMachine();
     this.service = interpret(this.poker)
-      // .onTransition(state => {
-      //   // elApp.dataset.state = state.toStrings().join(' ');
-      //   console.log(state);
-      //   this.pokerGame = state;
-      // })
+      .onTransition(state => {
+        // elApp.dataset.state = state.toStrings().join(' ');
+        console.log(state);
+        // this.pokerGame = state;
+      })
       .start();
 
     this.service.send({
       type: "CHOOSE_PLAYER_NUMBER",
       value: 7
     });
-    this.service.state.context.players[0].send({
-      type: "HUMAN_CALL_SMALL_BLIND",
-      value: 5
-    });
+    // this.service.state.context.players[0].send({
+    //   type: "HUMAN_CALL_SMALL_BLIND",
+    //   value: 5
+    // });
 
     // console.log(this.service.state);
   }
