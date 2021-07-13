@@ -36,6 +36,7 @@
       <div class="controls">
         <button @click="hello" class="button">Call</button>
         <button class="button">Fold</button>
+        <button class="button">Raise</button>
       </div>
     </div>
   </div>
@@ -120,6 +121,9 @@ export default {
 
     console.log(this.service.state);
   }
+  // mounted() {
+  //   console.log(this.humanHand);
+  // }
 };
 </script>
 

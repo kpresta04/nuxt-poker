@@ -72,11 +72,30 @@ describe("poker machine", () => {
     expect(service.state.context.players[4].state.context.chips).toEqual(990);
     // console.log(service.state.context.pot);
   });
-
-  // it("board has 5 cards", () => {
-  //   console.log(service.state.context);
-
-  //   service.state.value === "end" &&
-  //     expect(service.state.context.board.length).toEqual(5);
-  // });
+  it("2nd round", () => {
+    service.state.context.players[0].send({
+      type: "HUMAN_CHECK"
+    });
+  });
+  it("3rd round", () => {
+    service.state.context.players[0].send({
+      type: "HUMAN_CHECK"
+    });
+  });
+  it("4th round", () => {
+    service.state.context.players[0].send({
+      type: "HUMAN_CHECK"
+    });
+  });
+  it("end", () => {
+    // console.log(service.state.context);
+    // service.state.context.players[0].send({
+    //   type: "HUMAN_CHECK"
+    // });
+    // service.state.context.players[0].send({
+    //   type: "HUMAN_CHECK"
+    expect(service.state.context.smallBlindPosition).toEqual(1);
+    expect(service.state.context.bigBlindPosition).toEqual(2);
+  });
+  // console.log(service.state.context)
 });

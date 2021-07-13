@@ -302,6 +302,15 @@ export const createPlayer = (
                   on: {
                     BET_RESET: {
                       target: "needsToBet"
+                    },
+                    HAND_RESET: {
+                      actions: [
+                        assign({
+                          hand: [],
+                          betAmount: () => 0
+                        })
+                      ],
+                      target: "#player-bot.inGame"
                     }
                   }
                 }
@@ -363,7 +372,8 @@ const allPlayersHaveBet = (context: any, event: any) => {
   // console.log(allPlayers);
   return allPlayers;
 };
-
+const getInGamePlayers = (context: any) =>
+  context.players.filter((player: any) => player.state.value.inGame);
 const resetAllBets = (context: any, event: any) => {
   const inGamePlayers = context.players.filter(
     (player: any) => player.state.value.inGame
@@ -371,6 +381,15 @@ const resetAllBets = (context: any, event: any) => {
 
   inGamePlayers.forEach((player: any) => {
     player.send({ type: "BET_RESET" });
+  });
+};
+const resetAllPlayerHands = (context: any, event: any) => {
+  const inGamePlayers = context.players.filter(
+    (player: any) => player.state.value.inGame && player.state.context.chips > 0
+  );
+
+  inGamePlayers.forEach((player: any) => {
+    player.send({ type: "HAND_RESET" });
   });
 };
 const flop = assign((context: any, event: any) => {
@@ -649,9 +668,44 @@ export const createPokerMachine = () => {
           }
         },
         end: {
-          entry: [() => console.log("arrived at end")]
+          entry: [
+            () => console.log("arrived at end"),
+            assign((context: any, event: any) => {
+              //get players in game
+              //set smallBlind position +1 or 0
+              //set bigBlind position +1 or 0
+              const inGamePlayers = getInGamePlayers(context);
+              let smallBlindPosition, bigBlindPosition;
+              if (context.smallBlindPosition + 1 >= inGamePlayers.length) {
+                smallBlindPosition = 0;
+                bigBlindPosition = 1;
+              } else {
+                smallBlindPosition = context.smallBlindPosition + 1;
+                bigBlindPosition = context.bigBlindPosition + 1;
+              }
+              return {
+                smallBlindPosition,
+                bigBlindPosition
+              };
+            })
+          ],
+          after: {
+            3000: {
+              actions: [
+                assign((context: any, event: any) => {
+                  return {
+                    board: [],
+                    pot: 0,
+                    amountToCall: 0,
+                    deck: createDeck()
+                  };
+                }),
+                resetAllPlayerHands
+              ],
+              target: "dealing"
+            }
+          }
           //check winner
-          //set smallBlind position +1
         }
       }
     },
