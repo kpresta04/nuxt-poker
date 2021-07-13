@@ -216,7 +216,11 @@ export const createPlayer = (
                               () =>
                                 console.log("waiting for human small blind"),
                               setBetAmount,
-                              deductBetFromChips
+                              deductBetFromChips,
+                              sendParent({
+                                type: "SMALL_BLIND_WAITING",
+                                value: 5
+                              })
                             ]
                           },
                           {
@@ -267,7 +271,7 @@ export const createPlayer = (
                             // sendCallResponse
                             sendParent({
                               type: "SMALL_BLIND_RESPONSE",
-                              value: 10
+                              value: 5
                             })
                           ]
                         },
@@ -441,6 +445,9 @@ export const createPokerMachine = () => {
           entry: [takeBigBlind, takeSmallBlind],
 
           on: {
+            SMALL_BLIND_WAITING: {
+              actions: addBetToPot
+            },
             SMALL_BLIND_RESPONSE: {
               actions: addBetToPot,
               target: "firstBettingRound"

@@ -1,11 +1,13 @@
 <template>
   <div class="pokerBoard">
     <div class="topBanner">
-      <nuxt-link class="bannerLink" to="/"> <h1>Nuxt Poker</h1></nuxt-link>
+      <nuxt-link class="bannerLink" to="/"> <h1>Poker Blitz</h1></nuxt-link>
       <div class="humanStats">
-        <div class="h2">Current Pot:</div>
         <div class="h2">
-          Chips:
+          Current Pot: {{ service && service.state.context.pot }}
+        </div>
+        <div class="h2">
+          <img class="chip" src="/images/chip.svg" alt="Chip" />
           {{ service && service.state.context.players[0]._state.context.chips }}
         </div>
       </div>
@@ -118,6 +120,10 @@ export default {
   font-family: "Lobster", cursive;
   font-weight: 200;
 }
+.chip {
+  height: 32px;
+  padding: 0 0.5rem;
+}
 .humanCards {
   position: absolute;
   bottom: 0;
@@ -146,6 +152,8 @@ export default {
 
   .h2 {
     padding: 0 1rem;
+    display: flex;
+    align-items: center;
   }
 }
 </style>
