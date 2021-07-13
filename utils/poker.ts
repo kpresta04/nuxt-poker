@@ -414,7 +414,7 @@ export const createPokerMachine = () => {
         smallBlindPosition: 0,
         bigBlindPosition: 1,
         smallBlindAmount: 5,
-        board: <any>[],
+        board: [] as any,
         pot: 0,
         playersInHand: [] as PlayerList,
         amountToCall: 10

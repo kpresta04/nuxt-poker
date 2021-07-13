@@ -14,21 +14,24 @@
     </div>
     <div class="boardInfo">
       <div class="cards">
-        {{
-          service && service.state.context.board.length > 0
-            ? service.state.context.board.map(card => card.shortString)
-            : ""
-        }}
+        <img
+          class="playingCard"
+          v-for="card in boardHand"
+          :src="getImgSrc(card.shortString)"
+          :alt="card.toString()"
+          :key="card.index"
+        />
       </div>
     </div>
     <div class="humanCards">
       <div class="cards">
-        {{
-          service &&
-            service.state.context.players[0]._state.context.hand.map(
-              card => card.shortString || ""
-            )
-        }}
+        <img
+          class="playingCard"
+          v-for="card in humanHand"
+          :src="getImgSrc(card.shortString)"
+          :alt="card.toString()"
+          :key="card.index"
+        />
       </div>
       <div class="controls">
         <button @click="hello" class="button">Call</button>
@@ -51,8 +54,12 @@ import {
 
 import { createPokerMachine } from "~/utils/poker";
 import { imageDict } from "~/utils/imageDict";
+import PlayingCard from "~/components/PlayingCard.vue";
 
 export default {
+  components: {
+    PlayingCard
+  },
   data() {
     return {
       pokerGame: null,
@@ -62,6 +69,9 @@ export default {
     };
   },
   methods: {
+    getImgSrc: function(str) {
+      return imageDict[str];
+    },
     hello: function() {
       if (this.service.state.value === "gatheringBlinds") {
         this.service.state.context.players[0].send({
@@ -76,16 +86,16 @@ export default {
     }
   },
 
-  // computed: {
-  //   humanHand: function() {
-  //     if (this.pokerGame && this.pokerGame.children[1]) {
-  //       return this.pokerGame.children[1]._state.context.hand || [];
-  //     } else {
-  //       return [];
-  //     }
-  //   }
-  // },
-  mounted() {
+  computed: {
+    boardHand: function() {
+      return this.service.state.context.board;
+    },
+    humanHand: function() {
+      return this.service.state.context.players[0]._state.context.hand;
+    }
+  },
+
+  created() {
     // let poker;
     // let service;
     //
