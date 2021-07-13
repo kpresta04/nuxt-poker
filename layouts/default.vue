@@ -1,7 +1,5 @@
 <template>
   <v-app>
-    <!-- <v-app-bar hide-on-scroll color="black"> <h1>Nuxt Poker</h1> </v-app-bar> -->
-
     <nuxt />
   </v-app>
 </template>

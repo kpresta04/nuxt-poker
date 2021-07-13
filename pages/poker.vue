@@ -1,5 +1,15 @@
 <template>
   <div class="pokerBoard">
+    <div class="topBanner">
+      <nuxt-link class="bannerLink" to="/"> <h1>Nuxt Poker</h1></nuxt-link>
+      <div class="humanStats">
+        <div class="h2">Current Pot:</div>
+        <div class="h2">
+          Chips:
+          {{ service && service.state.context.players[0]._state.context.chips }}
+        </div>
+      </div>
+    </div>
     <div class="boardInfo">
       <div class="cards">
         {{
@@ -96,12 +106,18 @@ export default {
     //   value: 5
     // });
 
-    // console.log(this.service.state);
+    console.log(this.service.state);
   }
 };
 </script>
 
 <style lang="scss" scoped>
+.bannerLink {
+  color: white;
+  text-decoration: none;
+  font-family: "Lobster", cursive;
+  font-weight: 200;
+}
 .humanCards {
   position: absolute;
   bottom: 0;
@@ -116,5 +132,20 @@ export default {
   width: 100%;
   display: flex;
   justify-content: center;
+}
+.topBanner {
+  height: 64px;
+  background-color: black;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem;
+}
+.humanStats {
+  display: flex;
+
+  .h2 {
+    padding: 0 1rem;
+  }
 }
 </style>
