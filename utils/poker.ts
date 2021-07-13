@@ -485,7 +485,7 @@ export const createPokerMachine = () => {
           //ask each player for bet, starting with small blind player
           //if all players have bet, proceed to flop
           entry: requestNextBet,
-          exit: flop,
+          exit: [flop, resetAllBets],
           on: {
             CALL: [
               {
@@ -522,8 +522,9 @@ export const createPokerMachine = () => {
         },
         secondBettingRound: {
           entry: [
-            () => console.log("arrived at 2nd betting round"),
-            resetAllBets,
+            (context: any) => {
+              console.log("arrived at 2nd betting round");
+            },
             resetAmountToCall,
             requestFirstBet
           ],
