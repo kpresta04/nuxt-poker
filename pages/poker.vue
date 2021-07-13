@@ -33,8 +33,20 @@
           :key="card.index"
         />
       </div>
-      <div class="controls">
-        <button @click="hello" class="button">Call</button>
+      <div v-if="service.state.value === 'gatheringBlinds'" class="controls">
+        <button @click="call" class="button">Call</button>
+        <button class="button">Fold</button>
+        <button class="button">Raise</button>
+      </div>
+      <div v-else class="controls">
+        <button
+          v-if="service.state.context.amountToCall > 0"
+          @click="call"
+          class="button"
+        >
+          Call
+        </button>
+        <button v-else @click="check" class="button">Check</button>
         <button class="button">Fold</button>
         <button class="button">Raise</button>
       </div>
@@ -73,7 +85,13 @@ export default {
     getImgSrc: function(str) {
       return imageDict[str];
     },
-    hello: function() {
+
+    check: function() {
+      this.service.state.context.players[0].send({
+        type: "HUMAN_CHECK"
+      });
+    },
+    call: function() {
       if (this.service.state.value === "gatheringBlinds") {
         this.service.state.context.players[0].send({
           type: "HUMAN_CALL_SMALL_BLIND",
@@ -81,7 +99,8 @@ export default {
         });
       } else {
         this.service.state.context.players[0].send({
-          type: "HUMAN_CHECK"
+          type: "HUMAN_CALL",
+          value: this.service.state.context.amountToCall
         });
       }
     }

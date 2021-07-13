@@ -462,6 +462,11 @@ export const createPokerMachine = () => {
           //auto-deduct big blind,
           //auto-deduct small blind
           entry: [takeBigBlind, takeSmallBlind],
+          exit: assign((context: any, event: any) => {
+            return {
+              amountToCall: context.smallBlindAmount * 2
+            };
+          }),
 
           on: {
             SMALL_BLIND_WAITING: {
@@ -676,7 +681,7 @@ export const createPokerMachine = () => {
               //set bigBlind position +1 or 0
               const inGamePlayers = getInGamePlayers(context);
               let smallBlindPosition, bigBlindPosition;
-              if (context.smallBlindPosition + 1 >= inGamePlayers.length) {
+              if (context.bigBlindPosition + 1 >= inGamePlayers.length) {
                 smallBlindPosition = 0;
                 bigBlindPosition = 1;
               } else {
