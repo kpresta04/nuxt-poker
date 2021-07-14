@@ -106,10 +106,13 @@ const requestFirstBet = (context: any) => {
     (player: any) => player.state.value.inGame
   );
   const firstPlayer = playersInHand[context.smallBlindPosition];
-  firstPlayer.send({
-    type: "REQUEST_BET",
-    value: 0
-  });
+  firstPlayer.send(
+    {
+      type: "REQUEST_BET",
+      value: 0
+    },
+    { delay: 1000 }
+  );
 };
 
 const sendCallResponse = (context: any, event: any) => {
@@ -136,7 +139,8 @@ export const createPlayer = (
                   target: "hasCards",
                   actions: [
                     assign({
-                      hand: (_context, event: any) => event.value
+                      hand: (_context, event: any) => event.value,
+                      betAmount: 0
                     })
                   ]
                 }
@@ -278,8 +282,19 @@ export const createPlayer = (
                         HUMAN_CALL: {
                           target: "#player-bot.inGame.hasCards.betted",
                           actions: [
-                            setBetAmount,
-                            deductBetFromChips,
+                            assign((context: any, event: any) => {
+                              const betAmount = context.betAmount + event.value;
+                              const chips =
+                                context.chips - event.value > 0
+                                  ? context.chips - event.value
+                                  : 0;
+                              return {
+                                betAmount,
+                                chips
+                              };
+                            }),
+                            // setBetAmount,
+                            // deductBetFromChips,
                             // sendCallResponse
                             sendParent((context: any, event: any) => {
                               return {
@@ -301,13 +316,18 @@ export const createPlayer = (
                 betted: {
                   on: {
                     BET_RESET: {
-                      target: "needsToBet"
+                      actions: (context: any, event: any) => {
+                        if (context.human) {
+                          console.log("bet reset");
+                        }
+                      },
+                      target: "#player-bot.inGame.hasCards.needsToBet"
                     },
                     HAND_RESET: {
                       actions: [
                         assign({
-                          hand: [],
-                          betAmount: () => 0
+                          hand: []
+                          // betAmount: () => 0
                         })
                       ],
                       target: "#player-bot.inGame"

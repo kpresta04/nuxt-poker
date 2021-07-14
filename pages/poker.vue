@@ -4,6 +4,9 @@
       <nuxt-link class="bannerLink" to="/"> <h1>Poker Blitz</h1></nuxt-link>
       <div class="humanStats">
         <div class="h2">
+          Amount To Call: {{ service && service.state.context.amountToCall }}
+        </div>
+        <div class="h2">
           Current Pot: {{ service && service.state.context.pot }}
         </div>
         <div class="h2">
