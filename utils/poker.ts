@@ -368,21 +368,33 @@ type PokerContext = {
 
 const allFolded = (context: any, _event: any) =>
   context.playersInHand.length < 2;
+const requestNextBet = send(
+  (context: any, event: any) => ({
+    type: "REQUEST_BET",
+    value: context.amountToCall
+  }),
+  {
+    to: (context: any) =>
+      context.players.find(
+        (player: any) =>
+          player.state.value.inGame.hasCards.needsToBet === "notMyTurn"
+      )
+  }
+);
+// const requestNextBet = send(context: any, _event: any) =>{ type: "REQUEST_BET", value: context.amountToCall },
+//       { {
+//   const nextPlayer = context.players.find(
+//     (player: any) =>
+//       player.state.value.inGame.hasCards.needsToBet === "notMyTurn"
+//   );
+// console.log(context.amountToCall);
+// nextPlayer &&
+//   nextPlayer.send(
 
-const requestNextBet = (context: any, _event: any) => {
-  const nextPlayer = context.players.find(
-    (player: any) =>
-      player.state.value.inGame.hasCards.needsToBet === "notMyTurn"
-  );
-  // console.log(context.amountToCall);
-  nextPlayer &&
-    nextPlayer.send(
-      { type: "REQUEST_BET", value: context.amountToCall },
-      { delay: 1000 }
-    );
-  // setTimeout((context: any, event: any) => {
-  // }, 1000);
-};
+//   );
+// setTimeout((context: any, event: any) => {
+// }, 1000);
+// }
 
 const allPlayersHaveBet = (context: any, _event: any) => {
   // console.log("check for all bets");
