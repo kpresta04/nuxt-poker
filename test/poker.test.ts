@@ -39,7 +39,7 @@ describe("poker machine", () => {
 
   it("has dealt each player 2 cards", () => {
     // console.log(service.state.context.players[2].state.context);
-    // console.log(service.state.context.playersInGame);
+    // console.log(service.state.value);
     expect(service.state.context.players[1].state.context.hand.length).toEqual(
       2
     );
@@ -88,12 +88,6 @@ describe("poker machine", () => {
     });
   });
   it("end", () => {
-    // console.log(service.state.context);
-    // service.state.context.players[0].send({
-    //   type: "HUMAN_CHECK"
-    // });
-    // service.state.context.players[0].send({
-    //   type: "HUMAN_CHECK"
     expect(service.state.context.smallBlindPosition).toEqual(1);
     expect(service.state.context.bigBlindPosition).toEqual(2);
   });

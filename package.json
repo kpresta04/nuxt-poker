@@ -18,7 +18,7 @@
     "sass": "^1.35.1",
     "sass-loader": "10.1.1",
     "shuffle": "^0.2.2",
-    "xstate": "^4.20.2"
+    "xstate": "^4.7.0-rc6"
   },
   "devDependencies": {
     "@nuxt/types": "^2.14.5",

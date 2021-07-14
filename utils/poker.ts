@@ -51,11 +51,11 @@ const setBetAmount = assign((context: any, event: any) => {
 // });
 
 const deductBetFromChips = assign({
-  chips: (context: any, event: any) => context.chips - context.betAmount
+  chips: (context: any, _event: any) => context.chips - context.betAmount
   // 990
 });
 
-const smallBlindChoose = assign((context: any, event: any) => {
+const smallBlindChoose = assign((context: any, _event: any) => {
   const call = true;
   if (call) {
     const betAmount = 10;
@@ -68,11 +68,14 @@ const smallBlindChoose = assign((context: any, event: any) => {
 });
 
 const takeBigBlind = (context: any) => {
-  const playerId = context.playersInHand[context.bigBlindPosition];
-
-  const bigBlindPlayer = context.players.find(
-    (player: any) => player.id === playerId
+  const playersInHand = context.players.filter(
+    (player: any) => player.state.value.inGame
   );
+  const bigBlindPlayer = playersInHand[context.bigBlindPosition];
+
+  // const bigBlindPlayer = context.players.find(
+  //   (player: any) => player.id === playerId
+  // );
 
   bigBlindPlayer.send({
     type: "DEDUCT_BIG_BLIND",
@@ -115,12 +118,12 @@ const requestFirstBet = (context: any) => {
   );
 };
 
-const sendCallResponse = (context: any, event: any) => {
+const sendCallResponse = (_context: any, _event: any) => {
   console.log("send call");
   sendParent({ type: "CALL" });
 };
 
-const isHuman = (context: PlayerContext, event: any) => context.human;
+const isHuman = (context: PlayerContext, _event: any) => context.human;
 export const createPlayer = (
   player: any = { index: 0, chips: 1000, betAmount: 0, hand: [], human: false }
 ) => {
@@ -139,7 +142,7 @@ export const createPlayer = (
                   target: "hasCards",
                   actions: [
                     assign({
-                      hand: (_context, event: any) => event.value,
+                      hand: (_context: any, event: any) => event.value,
                       betAmount: 0
                     })
                   ]
@@ -191,7 +194,7 @@ export const createPlayer = (
                               setBetAmount,
                               deductBetFromChips,
                               // sendCallResponse
-                              sendParent((context: any, event: any) => {
+                              sendParent((_context: any, event: any) => {
                                 return {
                                   type: "CALL",
                                   value: event.value
@@ -296,7 +299,7 @@ export const createPlayer = (
                             // setBetAmount,
                             // deductBetFromChips,
                             // sendCallResponse
-                            sendParent((context: any, event: any) => {
+                            sendParent((_context: any, event: any) => {
                               return {
                                 type: "CALL",
                                 value: event.value
@@ -316,7 +319,7 @@ export const createPlayer = (
                 betted: {
                   on: {
                     BET_RESET: {
-                      actions: (context: any, event: any) => {
+                      actions: (context: any, _event: any) => {
                         if (context.human) {
                           console.log("bet reset");
                         }
@@ -346,7 +349,7 @@ export const createPlayer = (
           type: "final"
         }
       }
-    }
+    } as any
     // {
     //   actions: {
     //     // action implementations
@@ -361,10 +364,10 @@ type PokerContext = {
   playerCount: number;
 };
 
-const allFolded = (context: any, event: any) =>
+const allFolded = (context: any, _event: any) =>
   context.playersInHand.length < 2;
 
-const requestNextBet = (context: any, event: any) => {
+const requestNextBet = (context: any, _event: any) => {
   const nextPlayer = context.players.find(
     (player: any) =>
       player.state.value.inGame.hasCards.needsToBet === "notMyTurn"
@@ -379,7 +382,7 @@ const requestNextBet = (context: any, event: any) => {
   // }, 1000);
 };
 
-const allPlayersHaveBet = (context: any, event: any) => {
+const allPlayersHaveBet = (context: any, _event: any) => {
   // console.log("check for all bets");
   let playersInHand = context.players.filter(
     (player: any) =>
@@ -394,7 +397,7 @@ const allPlayersHaveBet = (context: any, event: any) => {
 };
 const getInGamePlayers = (context: any) =>
   context.players.filter((player: any) => player.state.value.inGame);
-const resetAllBets = (context: any, event: any) => {
+const resetAllBets = (context: any, _event: any) => {
   const inGamePlayers = context.players.filter(
     (player: any) => player.state.value.inGame
   );
@@ -403,7 +406,7 @@ const resetAllBets = (context: any, event: any) => {
     player.send({ type: "BET_RESET" });
   });
 };
-const resetAllPlayerHands = (context: any, event: any) => {
+const resetAllPlayerHands = (context: any, _event: any) => {
   const inGamePlayers = context.players.filter(
     (player: any) => player.state.value.inGame && player.state.context.chips > 0
   );
@@ -412,21 +415,21 @@ const resetAllPlayerHands = (context: any, event: any) => {
     player.send({ type: "HAND_RESET" });
   });
 };
-const flop = assign((context: any, event: any) => {
+const flop = assign((context: any, _event: any) => {
   let boardArray: any = [];
   context.deck.deal(3, [boardArray]);
   return {
     board: boardArray
   };
 });
-const turn = assign((context: any, event: any) => {
+const turn = assign((context: any, _event: any) => {
   let boardArray: any = context.board;
   context.deck.deal(1, [boardArray]);
   return {
     board: boardArray
   };
 });
-const river = assign((context: any, event: any) => {
+const river = assign((context: any, _event: any) => {
   let boardArray: any = context.board;
   context.deck.deal(1, [boardArray]);
   return {
@@ -439,7 +442,7 @@ const addBetToPot = assign((context: any, event: any) => {
   };
 });
 const resetAmountToCall = assign({
-  amountToCall: (context: any, event: any) => 0
+  amountToCall: (_context: any, _event: any) => 0
 });
 export const createPokerMachine = () => {
   return createMachine(
@@ -466,23 +469,25 @@ export const createPokerMachine = () => {
               // transition actions
               actions: [
                 "setPlayerNumber",
-                "spawnPlayerActors",
-                "setPlayerLists"
+                "spawnPlayerActors"
+                // "setPlayerLists"
               ]
             }
           }
         },
         dealing: {
-          always: {
-            target: "gatheringBlinds",
-            actions: "dealCards"
+          on: {
+            "": {
+              target: "gatheringBlinds",
+              actions: "dealCards"
+            }
           }
         },
         gatheringBlinds: {
           //auto-deduct big blind,
           //auto-deduct small blind
           entry: [takeBigBlind, takeSmallBlind],
-          exit: assign((context: any, event: any) => {
+          exit: assign((context: any, _event: any) => {
             return {
               amountToCall: context.smallBlindAmount * 2
             };
@@ -524,7 +529,7 @@ export const createPokerMachine = () => {
               // ask next player for bet
 
               actions: [
-                (context: any, event: any) => console.log("raised"),
+                (_context: any, _event: any) => console.log("raised"),
                 addBetToPot
               ]
             },
@@ -542,7 +547,7 @@ export const createPokerMachine = () => {
         },
         secondBettingRound: {
           entry: [
-            (context: any) => {
+            (_context: any) => {
               console.log("arrived at 2nd betting round");
             },
             resetAmountToCall,
@@ -576,7 +581,7 @@ export const createPokerMachine = () => {
               // set all Other Players to needsToBet
               // ask next player for bet
               actions: [
-                (context: any, event: any) => console.log("raised"),
+                (_context: any, _event: any) => console.log("raised"),
                 addBetToPot
               ]
             },
@@ -628,7 +633,7 @@ export const createPokerMachine = () => {
               // ask next player for bet
               actions: [
                 addBetToPot,
-                (context: any, event: any) => console.log("raised")
+                (_context: any, _event: any) => console.log("raised")
               ]
             },
             FOLD: [
@@ -678,7 +683,7 @@ export const createPokerMachine = () => {
               // ask next player for bet
               actions: [
                 addBetToPot,
-                (context: any, event: any) => console.log("raised")
+                (_context: any, _event: any) => console.log("raised")
               ]
             },
             FOLD: [
@@ -696,7 +701,7 @@ export const createPokerMachine = () => {
         end: {
           entry: [
             () => console.log("arrived at end"),
-            assign((context: any, event: any) => {
+            assign((context: any, _event: any) => {
               //get players in game
               //set smallBlind position +1 or 0
               //set bigBlind position +1 or 0
@@ -718,7 +723,7 @@ export const createPokerMachine = () => {
           after: {
             3000: {
               actions: [
-                assign((context: any, event: any) => {
+                assign((_context: any, _event: any) => {
                   return {
                     board: [],
                     pot: 0,
@@ -734,84 +739,84 @@ export const createPokerMachine = () => {
           //check winner
         }
       }
-    },
+    } as any,
     {
       actions: {
         // action implementations
-        activate: (context, event) => {
+        activate: (_context: any, _event: any) => {
           console.log("activating...");
         },
         setPlayerNumber: assign({
-          playerNumber: (context, event: UserEvents) => Number(event.value)
+          playerNumber: (_context: any, event: any) => Number(event.value)
         }),
-        createPlayerList: assign({
-          players: (context, event) => {
-            let playerArr = [];
-            for (let i = 0; i < context.playerNumber; i++) {
-              const playerId = `player${i}`;
-              // let machine = spawn(createPlayer({ index: i }), `player-${i}`);
-              playerArr.push(playerId);
-            }
-            return playerArr;
-          }
-        }),
+        // createPlayerList: assign((context:any, event:any)=>{
+        //   let playerArr = [];
+        //   for (let i = 0; i < context.playerNumber; i++) {
+        //     const playerId = `player${i}`;
+        //     // let machine = spawn(createPlayer({ index: i }), `player-${i}`);
+        //     playerArr.push(playerId);
+        //   }
+        //   return{
+        //     players: playerArr
+        //   }
+        // })
 
-        spawnPlayerActors: assign({
-          players: (context, event) => {
-            let playerArr = [];
+        spawnPlayerActors: assign((context: any, event: any) => {
+          let playerArr = [];
 
-            let human = spawn(
+          let human = spawn(
+            createPlayer({
+              index: 0,
+              chips: 1000,
+              betAmount: 0,
+              human: true,
+              hand: []
+            }),
+            { sync: true }
+          );
+          playerArr.push(human);
+          for (let i = 1; i < context.playerNumber; i++) {
+            // const playerId = `player${i}`;
+            let machine = spawn(
               createPlayer({
-                index: 0,
+                index: i,
                 chips: 1000,
                 betAmount: 0,
-                human: true
+                hand: [],
+                human: false
               }),
               { sync: true }
             );
-            playerArr.push(human);
-            for (let i = 1; i < context.playerNumber; i++) {
-              // const playerId = `player${i}`;
-              let machine = spawn(
-                createPlayer({
-                  index: i,
-                  chips: 1000,
-                  betAmount: 0,
-                  human: false
-                }),
-                { sync: true }
-              );
-              playerArr.push(machine);
-            }
-            return playerArr;
+            playerArr.push(machine);
           }
+          return { players: playerArr };
         }),
-        setPlayerLists: assign({
-          playersInHand: (context, event) => {
-            let playerList = [] as PlayerList;
+        // setPlayerLists: assign({
+        //   playersInHand: (context: any, _event: any) => {
+        //     let playerList = [] as PlayerList;
 
-            context.players.forEach((player: any) => {
-              if (player.state.value.inGame) {
-                playerList.push(player.id);
-              }
-            });
+        //     context.players.forEach((player: any) => {
+        //       if (player.state.value.inGame) {
+        //         playerList.push(player.id);
+        //       }
+        //     });
 
-            return playerList;
-          }
-          // ,
-          // playersInGame: (context, event) => {
-          //   let playerList = [] as PlayerList;
+        //     return playerList;
+        //   }
+        // ,
+        // playersInGame: (context, event) => {
+        //   let playerList = [] as PlayerList;
 
-          //   context.players.forEach((player: any) => {
-          //     if (player.state.value.inGame) {
-          //       playerList.push(player.id);
-          //     }
-          //   });
+        //   context.players.forEach((player: any) => {
+        //     if (player.state.value.inGame) {
+        //       playerList.push(player.id);
+        //     }
+        //   });
 
-          //   return playerList;
-          // }
-        }),
-        dealCards: context => {
+        //   return playerList;
+        // }
+        // }),
+        dealCards: (context: any) => {
           // console.log("dealing");
           context.players.forEach((player: any) => {
             let hand: any = [];
@@ -820,13 +825,13 @@ export const createPokerMachine = () => {
           });
         },
 
-        notifyActive: (context, event) => {
+        notifyActive: (_context: any, _event: any) => {
           console.log("active!");
         },
-        notifyInactive: (context, event) => {
+        notifyInactive: (_context: any, _event: any) => {
           console.log("inactive!");
         },
-        sendTelemetry: (context, event) => {
+        sendTelemetry: (_context: any, _event: any) => {
           console.log("time:", Date.now());
         }
       }
