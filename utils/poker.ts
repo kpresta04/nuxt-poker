@@ -333,7 +333,7 @@ export const createPlayer = (
                           // betAmount: () => 0
                         })
                       ],
-                      target: "#player-bot.inGame"
+                      target: "#player-bot.inGame.noCards"
                     }
                   }
                 }
@@ -732,6 +732,7 @@ export const createPokerMachine = () => {
                   };
                 }),
                 resetAllPlayerHands
+                // resetAllBets
               ],
               target: "dealing"
             }
