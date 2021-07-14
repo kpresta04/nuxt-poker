@@ -11,6 +11,8 @@ import {
   sendParent
 } from "xstate";
 
+const { raise } = actions;
+
 // interface
 
 type UserEvents = {
@@ -324,7 +326,7 @@ export const createPlayer = (
                           console.log("bet reset");
                         }
                       },
-                      target: "#player-bot.inGame.hasCards.needsToBet"
+                      target: "#player-bot.inGame.hasCards.needsToBet.notMyTurn"
                     },
                     HAND_RESET: {
                       actions: [
@@ -385,14 +387,13 @@ const requestNextBet = (context: any, _event: any) => {
 const allPlayersHaveBet = (context: any, _event: any) => {
   // console.log("check for all bets");
   let playersInHand = context.players.filter(
-    (player: any) =>
-      player.state.value.inGame && !player.state.value.inGame.folded
+    (player: any) => player.state.value.inGame.hasCards
   );
 
   let allPlayers = playersInHand.every(
     (player: any) => player.state.value.inGame.hasCards === "betted"
   );
-  // console.log(allPlayers);
+  console.log(allPlayers);
   return allPlayers;
 };
 const getInGamePlayers = (context: any) =>
