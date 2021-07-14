@@ -786,7 +786,7 @@ export const createPokerMachine = () => {
               human: true,
               hand: []
             }),
-            { sync: true }
+            { sync: true, name: "player-0" }
           );
           playerArr.push(human);
           for (let i = 1; i < context.playerNumber; i++) {
@@ -799,7 +799,7 @@ export const createPokerMachine = () => {
                 hand: [],
                 human: false
               }),
-              { sync: true }
+              { sync: true, name: `player-${i}` }
             );
             playerArr.push(machine);
           }
