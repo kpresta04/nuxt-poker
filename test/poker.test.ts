@@ -92,5 +92,8 @@ describe("poker machine", () => {
     expect(service.state.context.bigBlindPosition).toEqual(2);
     // console.log(service.state);
   });
-  // console.log(service.state.context)
+
+  it("2nd hand", () => {
+    console.log(service.state.value);
+  });
 });
