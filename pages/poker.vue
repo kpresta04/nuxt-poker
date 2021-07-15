@@ -1,26 +1,59 @@
 <template>
   <div class="pokerBoard">
+    <div class="topBanner">
+      <nuxt-link class="bannerLink" to="/"> <h1>Poker Blitz</h1></nuxt-link>
+      <div class="humanStats">
+        <div class="h2">
+          Amount To Call: {{ service && service.state.context.amountToCall }}
+        </div>
+        <div class="h2">
+          Current Pot: {{ service && service.state.context.pot }}
+        </div>
+        <div class="h2">
+          <img class="chip" src="/images/chip.svg" alt="Chip" />
+          {{ service && service.state.context.players[0]._state.context.chips }}
+        </div>
+      </div>
+    </div>
     <div class="boardInfo">
       <div class="cards">
-        {{
-          service && service.state.context.board.length > 0
-            ? service.state.context.board.map(card => card.shortString)
-            : ""
-        }}
+        <img
+          class="playingCard"
+          v-for="card in boardHand"
+          :src="getImgSrc(card.shortString)"
+          :alt="card.toString()"
+          :key="card.index"
+        />
       </div>
     </div>
     <div class="humanCards">
       <div class="cards">
-        {{
-          service &&
-            service.state.context.players[0]._state.context.hand.map(
-              card => card.shortString || ""
-            )
-        }}
+        <img
+          class="playingCard"
+          v-for="card in humanHand"
+          :src="getImgSrc(card.shortString)"
+          :alt="card.toString()"
+          :key="card.index"
+        />
       </div>
-      <div class="controls">
-        <button @click="hello" class="button">Call</button>
-        <button class="button">Fold</button>
+      <div :class="humansTurn ? 'active' : 'inactive'">
+        <div v-if="service.state.value === 'gatheringBlinds'" class="controls">
+          <button @click="call" class="button">Call</button>
+          <button class="button">Fold</button>
+          <button class="button">Raise</button>
+        </div>
+        <div v-else class="controls">
+          <button
+            v-if="service.state.context.amountToCall > 0"
+            @click="call"
+            class="button"
+          >
+            Call
+          </button>
+          <button v-else @click="check" class="button">Check</button>
+          <button class="button">Fold</button>
+          <button @click="raise" class="button">Raise</button>
+        </div>
       </div>
     </div>
   </div>
@@ -39,18 +72,37 @@ import {
 
 import { createPokerMachine } from "~/utils/poker";
 import { imageDict } from "~/utils/imageDict";
+import PlayingCard from "~/components/PlayingCard.vue";
 
 export default {
+  components: {
+    PlayingCard
+  },
   data() {
     return {
       pokerGame: null,
-      humanTurn: false,
+
       poker: createPokerMachine(),
       service: null
     };
   },
   methods: {
-    hello: function() {
+    getImgSrc: function(str) {
+      return imageDict[str];
+    },
+
+    check: function() {
+      this.service.state.context.players[0].send({
+        type: "HUMAN_CHECK"
+      });
+    },
+    raise: function() {
+      this.service.state.context.players[0].send({
+        type: "HUMAN_RAISE",
+        value: 20
+      });
+    },
+    call: function() {
       if (this.service.state.value === "gatheringBlinds") {
         this.service.state.context.players[0].send({
           type: "HUMAN_CALL_SMALL_BLIND",
@@ -58,22 +110,30 @@ export default {
         });
       } else {
         this.service.state.context.players[0].send({
-          type: "HUMAN_CHECK"
+          type: "HUMAN_CALL",
+          value: this.service.state.context.amountToCall
         });
       }
     }
   },
 
-  // computed: {
-  //   humanHand: function() {
-  //     if (this.pokerGame && this.pokerGame.children[1]) {
-  //       return this.pokerGame.children[1]._state.context.hand || [];
-  //     } else {
-  //       return [];
-  //     }
-  //   }
-  // },
-  mounted() {
+  computed: {
+    boardHand: function() {
+      return this.service.state.context.board;
+    },
+    humanHand: function() {
+      return this.service.state.context.players[0]._state.context.hand;
+    },
+    humansTurn: function() {
+      // return this.service.children[0]._state.context.hand;
+      return (
+        this.service.state.context.players[0].state.value.inGame.hasCards
+          .needsToBet === "isMyTurn"
+      );
+    }
+  },
+
+  created() {
     // let poker;
     // let service;
     //
@@ -96,12 +156,28 @@ export default {
     //   value: 5
     // });
 
-    // console.log(this.service.state);
+    console.log(this.service);
   }
+  // mounted() {
+  //   console.log(this.humanHand);
+  // }
 };
 </script>
 
 <style lang="scss" scoped>
+.inactive {
+  opacity: 0.5;
+}
+.bannerLink {
+  color: white;
+  text-decoration: none;
+  font-family: "Lobster", cursive;
+  font-weight: 200;
+}
+.chip {
+  height: 32px;
+  padding: 0 0.5rem;
+}
 .humanCards {
   position: absolute;
   bottom: 0;
@@ -116,5 +192,22 @@ export default {
   width: 100%;
   display: flex;
   justify-content: center;
+}
+.topBanner {
+  height: 64px;
+  background-color: black;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem;
+}
+.humanStats {
+  display: flex;
+
+  .h2 {
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+  }
 }
 </style>

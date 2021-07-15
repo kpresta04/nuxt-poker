@@ -39,7 +39,7 @@ describe("poker machine", () => {
 
   it("has dealt each player 2 cards", () => {
     // console.log(service.state.context.players[2].state.context);
-    // console.log(service.state.context.playersInGame);
+    // console.log(service.state.value);
     expect(service.state.context.players[1].state.context.hand.length).toEqual(
       2
     );
@@ -69,14 +69,31 @@ describe("poker machine", () => {
   });
 
   it("all bets deducted", () => {
-    expect(service.state.context.players[4].state.context.chips).toEqual(990);
-    console.log(service.state.context.pot);
+    // expect(service.state.context.players[4].state.context.chips).toEqual(990);
+    // console.log(service.state.context.pot);
+  });
+  it("2nd round", () => {
+    service.state.context.players[0].send({
+      type: "HUMAN_CHECK"
+    });
+  });
+  it("3rd round", () => {
+    service.state.context.players[0].send({
+      type: "HUMAN_CHECK"
+    });
+  });
+  it("4th round", () => {
+    service.state.context.players[0].send({
+      type: "HUMAN_CHECK"
+    });
+  });
+  it("end", () => {
+    // expect(service.state.context.smallBlindPosition).toEqual(1);
+    // expect(service.state.context.bigBlindPosition).toEqual(2);
+    // console.log(service.state);
   });
 
-  // it("board has 5 cards", () => {
-  //   console.log(service.state.context);
-
-  //   service.state.value === "end" &&
-  //     expect(service.state.context.board.length).toEqual(5);
-  // });
+  it("2nd hand", () => {
+    console.log(service.state.value);
+  });
 });
