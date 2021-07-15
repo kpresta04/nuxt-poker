@@ -183,7 +183,10 @@ export const createPlayer = (
                             cond: (_context: any, event: any) =>
                               event.value === 0,
                             target: "#player-bot.inGame.hasCards.betted",
-                            actions: sendParent({ type: "CHECK" })
+                            actions: sendParent(
+                              { type: "CHECK" },
+                              { delay: 1000 }
+                            )
                           },
                           {
                             //call
