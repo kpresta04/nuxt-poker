@@ -120,7 +120,16 @@ const requestFirstBet = (context: any) => {
   );
 };
 
-const callOrRaise = assign((context: any, event: any) => {
+const call = assign((context: any, event: any) => {
+  const betAmount = context.betAmount + event.value;
+  const chips =
+    context.chips - event.value > 0 ? context.chips - event.value : 0;
+  return {
+    betAmount,
+    chips
+  };
+});
+const raise = assign((context: any, event: any) => {
   const betAmount = context.betAmount + event.value;
   const chips =
     context.chips - event.value > 0 ? context.chips - event.value : 0;
@@ -323,7 +332,7 @@ export const createPlayer = (
                         HUMAN_CALL: {
                           target: "#player-bot.inGame.hasCards.betted",
                           actions: [
-                            callOrRaise,
+                            call,
                             // setBetAmount,
                             // deductBetFromChips,
                             // sendCallResponse
@@ -342,13 +351,14 @@ export const createPlayer = (
                         HUMAN_RAISE: {
                           target: "#player-bot.inGame.hasCards.betted",
                           actions: [
-                            callOrRaise,
+                            raise,
 
                             sendParent((_context: any, event: any) => {
                               return {
                                 type: "RAISE",
                                 value: event.value,
                                 index: _context.index
+                                //index tells parent which actor did the raise
                               };
                             })
                           ]
@@ -514,7 +524,7 @@ const addBetToPot = assign((context: any, event: any) => {
 });
 const raiseAmountToCall = assign((context: any, event: any) => {
   return {
-    amountToCall: context.amountToCall + event.value
+    amountToCall: event.value
   };
 });
 const resetAmountToCall = assign({

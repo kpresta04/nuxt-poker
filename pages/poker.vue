@@ -99,7 +99,7 @@ export default {
     raise: function() {
       this.service.state.context.players[0].send({
         type: "HUMAN_RAISE",
-        value: 10
+        value: 20
       });
     },
     call: function() {
