@@ -634,7 +634,7 @@ export const createPokerMachine = () => {
               // set all Other Players to needsToBet
               // ask next player for bet
               actions: [
-                (_context: any, _event: any) => console.log(_event),
+                (_context: any, _event: any) => console.log("raised"),
                 addBetToPot,
                 raiseAmountToCall,
                 resetAllOtherBets,
@@ -688,8 +688,11 @@ export const createPokerMachine = () => {
               // set all Other Players to needsToBet
               // ask next player for bet
               actions: [
+                (_context: any, _event: any) => console.log("raised"),
                 addBetToPot,
-                (_context: any, _event: any) => console.log("raised")
+                raiseAmountToCall,
+                resetAllOtherBets,
+                requestNextBet
               ]
             },
             FOLD: [
@@ -738,8 +741,11 @@ export const createPokerMachine = () => {
               // set all Other Players to needsToBet
               // ask next player for bet
               actions: [
+                (_context: any, _event: any) => console.log("raised"),
                 addBetToPot,
-                (_context: any, _event: any) => console.log("raised")
+                raiseAmountToCall,
+                resetAllOtherBets,
+                requestNextBet
               ]
             },
             FOLD: [
