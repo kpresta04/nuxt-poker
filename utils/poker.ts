@@ -185,7 +185,25 @@ export const createPlayer = (
                           },
                           {
                             //raise
-                            cond: () => false
+                            cond: (context: any, event: any) => false,
+                            target: "#player-bot.inGame.hasCards.betted",
+                            actions: [
+                              assign((context: any, event: any) => {
+                                const betAmount = context.betAmount + 20;
+                                const chips =
+                                  context.chips - 20 > 0
+                                    ? context.chips - 20
+                                    : 0;
+                                return {
+                                  betAmount,
+                                  chips
+                                };
+                              }),
+                              sendParent(
+                                { type: "RAISE", value: 20, index: 2 },
+                                { delay: 1000 }
+                              )
+                            ]
                           },
                           {
                             //check
