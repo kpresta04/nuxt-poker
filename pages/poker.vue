@@ -51,7 +51,7 @@
         </button>
         <button v-else @click="check" class="button">Check</button>
         <button class="button">Fold</button>
-        <button class="button">Raise</button>
+        <button @click="raise" class="button">Raise</button>
       </div>
     </div>
   </div>
@@ -92,6 +92,12 @@ export default {
     check: function() {
       this.service.state.context.players[0].send({
         type: "HUMAN_CHECK"
+      });
+    },
+    raise: function() {
+      this.service.state.context.players[0].send({
+        type: "HUMAN_RAISE",
+        value: 10
       });
     },
     call: function() {

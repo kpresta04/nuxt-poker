@@ -120,6 +120,15 @@ const requestFirstBet = (context: any) => {
   );
 };
 
+const callOrRaise = assign((context: any, event: any) => {
+  const betAmount = context.betAmount + event.value;
+  const chips =
+    context.chips - event.value > 0 ? context.chips - event.value : 0;
+  return {
+    betAmount,
+    chips
+  };
+});
 const sendCallResponse = (_context: any, _event: any) => {
   console.log("send call");
   sendParent({ type: "CALL" });
@@ -288,17 +297,7 @@ export const createPlayer = (
                         HUMAN_CALL: {
                           target: "#player-bot.inGame.hasCards.betted",
                           actions: [
-                            assign((context: any, event: any) => {
-                              const betAmount = context.betAmount + event.value;
-                              const chips =
-                                context.chips - event.value > 0
-                                  ? context.chips - event.value
-                                  : 0;
-                              return {
-                                betAmount,
-                                chips
-                              };
-                            }),
+                            callOrRaise,
                             // setBetAmount,
                             // deductBetFromChips,
                             // sendCallResponse
@@ -315,13 +314,18 @@ export const createPlayer = (
                           actions: sendParent({ type: "CHECK" })
                         },
                         HUMAN_RAISE: {
-                          actions: sendParent((_context: any, event: any) => {
-                            return {
-                              type: "RAISE",
-                              value: event.value,
-                              index: _context.index
-                            };
-                          })
+                          target: "#player-bot.inGame.hasCards.betted",
+                          actions: [
+                            callOrRaise,
+
+                            sendParent((_context: any, event: any) => {
+                              return {
+                                type: "RAISE",
+                                value: event.value,
+                                index: _context.index
+                              };
+                            })
+                          ]
                         }
                       }
                     }
@@ -429,9 +433,14 @@ const getInGamePlayers = (context: any) =>
 //   });
 // };
 const resetAllOtherBets = pure((context: any, event: any) => {
+  // console.log(context.players[1].state.context);
+  // console.log(event.index);
+
   const nonRaisers = context.players.filter(
-    (player: any) => !player.context.index === event.index
+    (player: any) => player.state.context.index !== event.index
   );
+
+  // console.log(nonRaisers);
   return nonRaisers.map((player: any) => {
     return send("BET_RESET", { to: player });
   });
@@ -474,6 +483,12 @@ const river = assign((context: any, _event: any) => {
 const addBetToPot = assign((context: any, event: any) => {
   return {
     pot: context.pot + event.value
+    // amountToCall: context.amountToCall + event.value
+  };
+});
+const raiseAmountToCall = assign((context: any, event: any) => {
+  return {
+    amountToCall: context.amountToCall + event.value
   };
 });
 const resetAmountToCall = assign({
@@ -565,7 +580,10 @@ export const createPokerMachine = () => {
 
               actions: [
                 (_context: any, _event: any) => console.log("raised"),
-                addBetToPot
+                addBetToPot,
+                raiseAmountToCall,
+                resetAllOtherBets,
+                requestNextBet
               ]
             },
             FOLD: [
@@ -616,8 +634,11 @@ export const createPokerMachine = () => {
               // set all Other Players to needsToBet
               // ask next player for bet
               actions: [
-                (_context: any, _event: any) => console.log("raised"),
-                addBetToPot
+                (_context: any, _event: any) => console.log(_event),
+                addBetToPot,
+                raiseAmountToCall,
+                resetAllOtherBets,
+                requestNextBet
               ]
             },
             FOLD: [
