@@ -199,12 +199,10 @@ export const createPlayer = (
                               setBetAmount,
                               deductBetFromChips,
                               // sendCallResponse
-                              sendParent((_context: any, event: any) => {
-                                return {
-                                  type: "CALL",
-                                  value: event.value
-                                };
-                              })
+                              sendParent((_context: any, event: any) => ({
+                                type: "CALL",
+                                value: event.value
+                              }))
                             ]
                           }
                         ],
@@ -316,7 +314,15 @@ export const createPlayer = (
                           target: "#player-bot.inGame.hasCards.betted",
                           actions: sendParent({ type: "CHECK" })
                         },
-                        HUMAN_RAISE: {}
+                        HUMAN_RAISE: {
+                          actions: sendParent((_context: any, event: any) => {
+                            return {
+                              type: "RAISE",
+                              value: event.value,
+                              index: _context.index
+                            };
+                          })
+                        }
                       }
                     }
                   }
@@ -422,6 +428,14 @@ const getInGamePlayers = (context: any) =>
 //     player.send({ type: "BET_RESET" });
 //   });
 // };
+const resetAllOtherBets = pure((context: any, event: any) => {
+  const nonRaisers = context.players.filter(
+    (player: any) => !player.context.index === event.index
+  );
+  return nonRaisers.map((player: any) => {
+    return send("BET_RESET", { to: player });
+  });
+});
 const resetAllBets = pure((context: any, event: any) => {
   return context.players.map((player: any) => {
     return send("BET_RESET", { to: player });
