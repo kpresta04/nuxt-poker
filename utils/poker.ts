@@ -11,8 +11,8 @@ import {
   sendParent
 } from "xstate";
 
-const { raise } = actions;
-
+const { pure } = actions;
+// const {pure} = actions
 // interface
 
 type UserEvents = {
@@ -405,20 +405,25 @@ const allPlayersHaveBet = (context: any, _event: any) => {
   let allPlayers = playersInHand.every(
     (player: any) => player.state.value.inGame.hasCards === "betted"
   );
-  console.log(allPlayers);
+  // console.log(allPlayers);
   return allPlayers;
 };
 const getInGamePlayers = (context: any) =>
   context.players.filter((player: any) => player.state.value.inGame);
-const resetAllBets = (context: any, _event: any) => {
-  const inGamePlayers = context.players.filter(
-    (player: any) => player.state.value.inGame
-  );
+// const resetAllBets = (context: any, _event: any) => {
+//   const inGamePlayers = context.players.filter(
+//     (player: any) => player.state.value.inGame
+//   );
 
-  inGamePlayers.forEach((player: any) => {
-    player.send({ type: "BET_RESET" });
+//   inGamePlayers.forEach((player: any) => {
+//     player.send({ type: "BET_RESET" });
+//   });
+// };
+const resetAllBets = pure((context: any, event: any) => {
+  return context.players.map((player: any) => {
+    return send("BET_RESET", { to: player });
   });
-};
+});
 const resetAllPlayerHands = (context: any, _event: any) => {
   const inGamePlayers = context.players.filter(
     (player: any) => player.state.value.inGame && player.state.context.chips > 0
