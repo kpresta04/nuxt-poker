@@ -36,22 +36,24 @@
           :key="card.index"
         />
       </div>
-      <div v-if="service.state.value === 'gatheringBlinds'" class="controls">
-        <button @click="call" class="button">Call</button>
-        <button class="button">Fold</button>
-        <button class="button">Raise</button>
-      </div>
-      <div v-else class="controls">
-        <button
-          v-if="service.state.context.amountToCall > 0"
-          @click="call"
-          class="button"
-        >
-          Call
-        </button>
-        <button v-else @click="check" class="button">Check</button>
-        <button class="button">Fold</button>
-        <button @click="raise" class="button">Raise</button>
+      <div :class="humansTurn ? 'active' : 'inactive'">
+        <div v-if="service.state.value === 'gatheringBlinds'" class="controls">
+          <button @click="call" class="button">Call</button>
+          <button class="button">Fold</button>
+          <button class="button">Raise</button>
+        </div>
+        <div v-else class="controls">
+          <button
+            v-if="service.state.context.amountToCall > 0"
+            @click="call"
+            class="button"
+          >
+            Call
+          </button>
+          <button v-else @click="check" class="button">Check</button>
+          <button class="button">Fold</button>
+          <button @click="raise" class="button">Raise</button>
+        </div>
       </div>
     </div>
   </div>
@@ -79,7 +81,7 @@ export default {
   data() {
     return {
       pokerGame: null,
-      humanTurn: false,
+
       poker: createPokerMachine(),
       service: null
     };
@@ -121,6 +123,13 @@ export default {
     },
     humanHand: function() {
       return this.service.state.context.players[0]._state.context.hand;
+    },
+    humansTurn: function() {
+      // return this.service.children[0]._state.context.hand;
+      return (
+        this.service.state.context.players[0].state.value.inGame.hasCards
+          .needsToBet === "isMyTurn"
+      );
     }
   },
 
@@ -147,7 +156,7 @@ export default {
     //   value: 5
     // });
 
-    console.log(this.service.state);
+    console.log(this.service);
   }
   // mounted() {
   //   console.log(this.humanHand);
@@ -156,6 +165,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.inactive {
+  opacity: 0.5;
+}
 .bannerLink {
   color: white;
   text-decoration: none;

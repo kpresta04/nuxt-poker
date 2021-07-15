@@ -226,10 +226,18 @@ export const createPlayer = (
                               setBetAmount,
                               deductBetFromChips,
                               // sendCallResponse
-                              sendParent((_context: any, event: any) => ({
-                                type: "CALL",
-                                value: event.value
-                              }))
+                              pure((context: any, event: any) => {
+                                return sendParent(
+                                  { type: "CALL", value: event.value },
+                                  { delay: 1000 }
+                                );
+                              })
+                              // sendParent((_context: any, event: any) => {
+                              //   return {
+                              //     type: "CALL",
+                              //     value: event.value
+                              //   };
+                              // })
                             ]
                           }
                         ],
