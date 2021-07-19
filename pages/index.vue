@@ -5,9 +5,11 @@
     </h1>
 
     <div class="buttons from-opaque">
-      <nuxt-link class="button bg-dark-red" to="/poker">Play Now</nuxt-link>
+      <nuxt-link class="button front-page bg-dark-red" to="/poker"
+        >Play Now</nuxt-link
+      >
       <!-- <v-btn>View Rules</v-btn> -->
-      <button class="button bg-black">View Rules</button>
+      <button class="button front-page bg-black">View Rules</button>
     </div>
     <!-- <div class="buttons">
       <v-btn :class="{ opaque: !running }" @click="fold" color="red darken-4"

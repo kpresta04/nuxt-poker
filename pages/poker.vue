@@ -172,7 +172,11 @@ export default {
   color: white;
   text-decoration: none;
   font-family: "Lobster", cursive;
-  font-weight: 200;
+  /* font-weight: 200; */
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 400;
+  }
 }
 .chip {
   height: 32px;
