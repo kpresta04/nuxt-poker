@@ -1,8 +1,10 @@
 <template>
-  <div class="pokerBoard">
+  <div class="pokerBoard boardGrid">
     <div class="topBanner">
-      <nuxt-link class="bannerLink" to="/"> <h1>Poker Blitz</h1></nuxt-link>
-      <nuxt-link class="button bg-blue" to="/">Leave Game </nuxt-link>
+      <div class="container">
+        <nuxt-link class="bannerLink" to="/"> <h1>Poker Blitz</h1></nuxt-link>
+        <nuxt-link class="button bg-blue" to="/">Leave Game </nuxt-link>
+      </div>
 
       <!-- <div class="humanStats">
         <div class="h2">
@@ -28,33 +30,38 @@
         />
       </div>
     </div>
-    <div class="humanCards">
-      <div class="cards">
-        <img
-          class="playingCard"
-          v-for="card in humanHand"
-          :src="getImgSrc(card.shortString)"
-          :alt="card.toString()"
-          :key="card.index"
-        />
-      </div>
-      <div :class="humansTurn ? 'active' : 'inactive'">
-        <div v-if="service.state.value === 'gatheringBlinds'" class="controls">
-          <button @click="call" class="button bg-blue">Call</button>
-          <button class="button bg-red">Fold</button>
-          <button class="button bg-dk-green">Raise</button>
+    <div class="humanControls">
+      <div class="humanCards">
+        <div class="cards">
+          <img
+            class="playingCard"
+            v-for="card in humanHand"
+            :src="getImgSrc(card.shortString)"
+            :alt="card.toString()"
+            :key="card.index"
+          />
         </div>
-        <div v-else class="controls">
-          <button
-            v-if="service.state.context.amountToCall > 0"
-            @click="call"
-            class="button bg-blue"
+        <div :class="humansTurn ? 'active' : 'inactive'">
+          <div
+            v-if="service.state.value === 'gatheringBlinds'"
+            class="controls"
           >
-            Call
-          </button>
-          <button v-else @click="check" class="button bg-blue">Check</button>
-          <button class="button bg-red">Fold</button>
-          <button @click="raise" class="button bg-dk-green">Raise</button>
+            <button @click="call" class="button bg-blue">Call</button>
+            <button class="button bg-red">Fold</button>
+            <button class="button bg-dk-green">Raise</button>
+          </div>
+          <div v-else class="controls">
+            <button
+              v-if="service.state.context.amountToCall > 0"
+              @click="call"
+              class="button bg-blue"
+            >
+              Call
+            </button>
+            <button v-else @click="check" class="button bg-blue">Check</button>
+            <button class="button bg-red">Fold</button>
+            <button @click="raise" class="button bg-dk-green">Raise</button>
+          </div>
         </div>
       </div>
     </div>
@@ -200,12 +207,19 @@ export default {
   justify-content: center;
 }
 .topBanner {
+  width: 100vw;
   height: 64px;
   background-color: black;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: 0 1rem;
+
+  .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem;
+  }
 }
 .humanStats {
   display: flex;
@@ -215,5 +229,18 @@ export default {
     display: flex;
     align-items: center;
   }
+}
+.boardGrid {
+  display: grid;
+  grid-template-rows: repeat(6, 1fr);
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+.humanControls {
+  /* position: absolute;
+  width: 100%;
+  bottom: 0; */
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr;
 }
 </style>

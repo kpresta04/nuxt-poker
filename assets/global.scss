@@ -17,6 +17,9 @@ body {
 .bg-dk-green {
   background-color: hsl(157, 21%, 14%) !important;
 }
+.container {
+  max-width: 1440px;
+}
 .pokerBoard {
   color: white;
   height: auto;
