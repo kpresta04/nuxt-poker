@@ -2,7 +2,9 @@
   <div class="pokerBoard">
     <div class="topBanner">
       <nuxt-link class="bannerLink" to="/"> <h1>Poker Blitz</h1></nuxt-link>
-      <div class="humanStats">
+      <nuxt-link class="button bg-blue" to="/">Leave Game </nuxt-link>
+
+      <!-- <div class="humanStats">
         <div class="h2">
           Amount To Call: {{ service && service.state.context.amountToCall }}
         </div>
@@ -13,7 +15,7 @@
           <img class="chip" src="/images/chip.svg" alt="Chip" />
           {{ service && service.state.context.players[0]._state.context.chips }}
         </div>
-      </div>
+      </div> -->
     </div>
     <div class="boardInfo">
       <div class="cards">
@@ -38,21 +40,21 @@
       </div>
       <div :class="humansTurn ? 'active' : 'inactive'">
         <div v-if="service.state.value === 'gatheringBlinds'" class="controls">
-          <button @click="call" class="button">Call</button>
-          <button class="button">Fold</button>
-          <button class="button">Raise</button>
+          <button @click="call" class="button bg-blue">Call</button>
+          <button class="button bg-red">Fold</button>
+          <button class="button bg-dk-green">Raise</button>
         </div>
         <div v-else class="controls">
           <button
             v-if="service.state.context.amountToCall > 0"
             @click="call"
-            class="button"
+            class="button bg-blue"
           >
             Call
           </button>
-          <button v-else @click="check" class="button">Check</button>
-          <button class="button">Fold</button>
-          <button @click="raise" class="button">Raise</button>
+          <button v-else @click="check" class="button bg-blue">Check</button>
+          <button class="button bg-red">Fold</button>
+          <button @click="raise" class="button bg-dk-green">Raise</button>
         </div>
       </div>
     </div>

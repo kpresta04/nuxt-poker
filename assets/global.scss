@@ -1,6 +1,20 @@
 @import "normalize.css";
 body {
   font-family: "Source Sans Pro", sans-serif !important;
+  font-size: 16px;
+}
+
+.bg-blue {
+  background-color: hsl(215, 70%, 47%);
+}
+.bg-red {
+  background-color: hsl(0, 75%, 41%) !important;
+}
+.bg-md-green {
+  background-color: hsl(129, 31%, 53%) !important;
+}
+.bg-dk-green {
+  background-color: hsl(157, 21%, 14%) !important;
 }
 .pokerBoard {
   color: white;
@@ -23,6 +37,7 @@ body {
 .button {
   font-size: 1.125rem;
   color: white;
+  min-width: 80px;
   text-decoration: none;
   text-transform: capitalize;
   padding: 0.25rem 1.25rem;
@@ -30,15 +45,6 @@ body {
   font-family: "Lobster", cursive !important;
   &:hover {
     cursor: pointer;
-  }
-  .front-page {
-    font-family: "Source Sans Pro", sans-serif;
-    padding: 1.2rem;
-    font-weight: 600;
-    font-size: 1.1rem;
-    border-radius: 4px;
-    letter-spacing: 2px;
-    color: white !important;
   }
 }
 
