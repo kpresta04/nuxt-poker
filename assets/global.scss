@@ -44,9 +44,10 @@ body {
 .button {
   border: none;
   font-size: 1.125rem;
-  color: white;
+  color: white !important;
   min-width: 80px;
-  height: 30px;
+  height: 100%;
+  min-height: 30px;
   line-height: 30px;
   text-decoration: none;
   text-transform: capitalize;
