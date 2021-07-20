@@ -13,10 +13,7 @@
         <div class="h2">
           Current Pot: {{ service && service.state.context.pot }}
         </div>
-        <div class="h2">
-          <img class="chip" src="/images/chip.svg" alt="Chip" />
-          {{ service && service.state.context.players[0]._state.context.chips }}
-        </div>
+       
       </div> -->
     </div>
 
@@ -34,6 +31,10 @@
       </div>
       <!-- <div class="humanControls"> -->
       <div class="bottom-r">
+        <div class="humanChips">
+          <img class="chip" src="/images/chip.svg" alt="Chip" />
+          {{ service && service.state.context.players[0]._state.context.chips }}
+        </div>
         <button class="button bg-red">Fold</button>
       </div>
       <div class="humanCards">
@@ -197,8 +198,8 @@ export default {
   }
 }
 .chip {
-  height: 32px;
-  padding: 0 0.5rem;
+  height: 24px;
+  /* padding: 0 0.5rem; */
 }
 .humanCards {
   grid-column: 2;
@@ -273,7 +274,16 @@ export default {
 }
 
 .bottom-r {
+  .humanChips {
+    display: flex;
+    margin-bottom: 1rem;
+    .chip {
+      padding-right: 0.5rem;
+    }
+  }
   grid-column: 3;
   grid-row: 5;
+  /* display: flex; */
+  justify-content: center;
 }
 </style>

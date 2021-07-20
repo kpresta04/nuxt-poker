@@ -6,9 +6,9 @@
 
     <div class="button-row from-opaque">
       <div class="buttons">
-        <nuxt-link class="button front-page bg-dark-red" to="/poker"
-          >Play Now</nuxt-link
-        >
+        <nuxt-link to="/poker">
+          <button class="button front-page bg-dark-red">Play Now</button>
+        </nuxt-link>
         <!-- <v-btn>View Rules</v-btn> -->
         <button class="button front-page bg-black">View Rules</button>
       </div>
