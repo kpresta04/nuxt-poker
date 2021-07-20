@@ -244,8 +244,9 @@ export default {
 .boardGrid {
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
-  grid-template-rows: 1fr 1.5fr 1fr 0.75fr 1fr;
-  /* grid-template-rows: repeat(5, auto); */
+  /* grid-template-rows: 1fr 1.5fr 1fr 0.75fr 1fr; */
+
+  grid-template-rows: repeat(5, auto);
   gap: 0 20px;
   height: 100vh;
   width: 100vw;
