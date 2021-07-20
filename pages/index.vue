@@ -53,44 +53,4 @@ export default Vue.extend({});
 .opaque {
   opacity: 0.5;
 }
-
-.cardsDiv {
-  margin: 0 auto 5rem auto;
-}
-.cardDiv {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  margin: 4rem 0;
-}
-.boardCardDiv {
-  width: 100%;
-  /* grid-row: 3; */
-  /* grid-column: 2 / span 3; */
-  /* position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -160%); */
-}
-.humanHandDiv {
-  width: 100%;
-  /* grid-row: 4 / span 2; */
-  /* position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, 80%); */
-}
-.botCardDiv {
-  position: relative;
-  /* grid-row: 1 / span 2; */
-}
-@media screen and (max-width: 620px) {
-  .playingCard {
-    width: 55px !important;
-  }
-}
-.playingCard {
-  margin: 0 0.5rem;
-}
 </style>

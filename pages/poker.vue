@@ -226,6 +226,8 @@ export default {
   align-items: center;
 
   .container {
+    width: 100%;
+    /* max-width: 1200px; */
     display: flex;
     justify-content: space-between;
     align-items: center;
