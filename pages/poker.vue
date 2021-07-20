@@ -32,43 +32,47 @@
           />
         </div>
       </div>
-      <div class="humanControls">
-        <div class="humanCards">
-          <div class="cards">
-            <img
-              class="playingCard"
-              v-for="card in humanHand"
-              :src="getImgSrc(card.shortString)"
-              :alt="card.toString()"
-              :key="card.index"
-            />
-          </div>
-          <div :class="humansTurn ? 'active' : 'inactive'">
-            <div
-              v-if="service.state.value === 'gatheringBlinds'"
-              class="controls"
-            >
-              <button @click="call" class="button bg-blue">Call</button>
-              <button class="button bg-red">Fold</button>
-              <button class="button bg-dk-green">Raise</button>
-            </div>
-            <div v-else class="controls">
-              <button
-                v-if="service.state.context.amountToCall > 0"
-                @click="call"
-                class="button bg-blue"
-              >
-                Call
-              </button>
-              <button v-else @click="check" class="button bg-blue">
-                Check
-              </button>
-              <button class="button bg-red">Fold</button>
-              <button @click="raise" class="button bg-dk-green">Raise</button>
-            </div>
-          </div>
-        </div>
+      <!-- <div class="humanControls"> -->
+      <div class="bottom-r">
+        <button class="button bg-red">Fold</button>
       </div>
+      <div class="humanCards">
+        <div class="cards">
+          <img
+            class="playingCard"
+            v-for="card in humanHand"
+            :src="getImgSrc(card.shortString)"
+            :alt="card.toString()"
+            :key="card.index"
+          />
+        </div>
+
+        <!-- <div :class="humansTurn ? 'active' : 'inactive'">
+          <div
+            v-if="service.state.value === 'gatheringBlinds'"
+            class="controls"
+          >
+            <button @click="call" class="button bg-blue">Call</button>
+            <button class="button bg-red">Fold</button>
+            <button class="button bg-dk-green">Raise</button>
+          </div>
+          <div v-else class="controls">
+            <button
+              v-if="service.state.context.amountToCall > 0"
+              @click="call"
+              class="button bg-blue"
+            >
+              Call
+            </button>
+            <button v-else @click="check" class="button bg-blue">
+              Check
+            </button>
+            
+            <button @click="raise" class="button bg-dk-green">Raise</button>
+          </div>
+        </div> -->
+      </div>
+      <!-- </div> -->
     </div>
   </div>
 </template>
@@ -197,8 +201,10 @@ export default {
   padding: 0 0.5rem;
 }
 .humanCards {
-  position: absolute;
-  bottom: 0;
+  grid-column: 2;
+  grid-row: 5;
+  /* position: absolute;
+  bottom: 0; */
   width: 100%;
   display: flex;
   justify-content: center;
@@ -239,7 +245,8 @@ export default {
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
   grid-template-rows: 1fr 1.5fr 1fr 0.75fr 1fr;
-  gap: 5px 20px;
+  /* grid-template-rows: repeat(5, auto); */
+  gap: 0 20px;
   height: 100vh;
   width: 100vw;
   max-width: 1200px;
@@ -252,5 +259,18 @@ export default {
   bottom: 0; */
   display: grid;
   grid-template-rows: 1fr 1fr 1fr;
+}
+
+.playingCard {
+  height: 120px;
+  width: 80px;
+  margin: 0 0.2rem;
+  /* margin: 0 0.5rem;
+  padding-top: -10px; */
+}
+
+.bottom-r {
+  grid-column: 3;
+  grid-row: 5;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div>{{<img :src="srcString" alt="Card" />}}</div>
+  <div><img class="playingCard" :src="srcString" alt="Card" /></div>
 </template>
 
 <script>
