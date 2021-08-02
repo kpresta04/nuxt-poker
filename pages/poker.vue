@@ -20,13 +20,13 @@
     <div class="boardGrid">
       <div class="boardInfo">
         <div class="cards">
-          <img
-            class="playingCard"
+          <CardSvg
             v-for="card in boardHand"
-            :src="getImgSrc(card.shortString)"
-            :alt="card.toString()"
+            :shortString="card.shortString"
+            :suit="card.suit"
             :key="card.index"
-          />
+          >
+          </CardSvg>
         </div>
       </div>
       <!-- <div class="humanControls"> -->
@@ -36,6 +36,27 @@
           {{ service && service.state.context.players[0]._state.context.chips }}
         </div>
         <button class="button bg-red">Fold</button>
+      </div>
+      <div id="callButtons" :class="humansTurn ? 'active' : 'inactive'">
+        <div v-if="service.state.value === 'gatheringBlinds'" class="controls">
+          <button @click="call" class="button bg-blue">Call</button>
+
+          <button class="button bg-dk-green">Raise</button>
+        </div>
+        <div v-else class="controls">
+          <button
+            v-if="service.state.context.amountToCall > 0"
+            @click="call"
+            class="button bg-blue"
+          >
+            Call
+          </button>
+          <button v-else @click="check" class="button bg-blue">
+            Check
+          </button>
+
+          <button @click="raise" class="button bg-dk-green">Raise</button>
+        </div>
       </div>
       <div class="humanCards">
         <div class="cards">
@@ -47,31 +68,6 @@
             :key="card.index"
           />
         </div>
-
-        <!-- <div :class="humansTurn ? 'active' : 'inactive'">
-          <div
-            v-if="service.state.value === 'gatheringBlinds'"
-            class="controls"
-          >
-            <button @click="call" class="button bg-blue">Call</button>
-            <button class="button bg-red">Fold</button>
-            <button class="button bg-dk-green">Raise</button>
-          </div>
-          <div v-else class="controls">
-            <button
-              v-if="service.state.context.amountToCall > 0"
-              @click="call"
-              class="button bg-blue"
-            >
-              Call
-            </button>
-            <button v-else @click="check" class="button bg-blue">
-              Check
-            </button>
-            
-            <button @click="raise" class="button bg-dk-green">Raise</button>
-          </div>
-        </div> -->
       </div>
       <!-- </div> -->
     </div>
@@ -92,10 +88,12 @@ import {
 import { createPokerMachine } from "~/utils/poker";
 import { imageDict } from "~/utils/imageDict";
 import PlayingCard from "~/components/PlayingCard.vue";
+import CardSvg from "~/components/CardSvg.vue";
 
 export default {
   components: {
-    PlayingCard
+    PlayingCard,
+    CardSvg
   },
   data() {
     return {
@@ -210,10 +208,16 @@ export default {
   display: flex;
   justify-content: center;
 }
+#callButtons {
+  grid-column: 2;
+  grid-row: 4;
+  width: 100%;
+  display: flex;
+}
 
 .boardInfo {
-  position: absolute;
-  bottom: 50%;
+  grid-column: 2;
+  grid-row: 3;
   width: 100%;
   display: flex;
   justify-content: center;
