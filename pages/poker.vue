@@ -23,6 +23,7 @@
           <CardSvg
             v-for="card in boardHand"
             :shortString="card.shortString"
+            :label="card.toString()"
             :suit="card.suit"
             :key="card.index"
           >

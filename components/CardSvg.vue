@@ -1,7 +1,7 @@
 <template>
   <div class="background">
     <div :class="suit + ' ' + 'card-svg'">
-      <div class="value">
+      <div class="value" :aria-label="label">
         {{ shortString[0] === "T" ? 10 : shortString[0] }}
       </div>
     </div>
@@ -18,6 +18,10 @@ export default {
     suit: {
       type: String,
       default: "Spades"
+    },
+    label: {
+      type: String,
+      default: ""
     }
   }
 };
