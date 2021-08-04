@@ -19,7 +19,7 @@
 
     <div class="boardGrid">
       <div class="boardInfo">
-        <div class="cards">
+        <div class="dealerCards">
           <CardSvg
             v-for="card in boardHand"
             :shortString="card.shortString"
@@ -268,6 +268,12 @@ export default {
   bottom: 0; */
   display: grid;
   grid-template-rows: 1fr 1fr 1fr;
+}
+
+.dealerCards {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .playingCard {

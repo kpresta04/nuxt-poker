@@ -210,7 +210,7 @@ export const createPlayer = (
                               }),
                               sendParent(
                                 { type: "RAISE", value: 20, index: 2 },
-                                { delay: 1000 }
+                                { delay: 500 }
                               )
                             ]
                           },
@@ -221,7 +221,7 @@ export const createPlayer = (
                             target: "#player-bot.inGame.hasCards.betted",
                             actions: sendParent(
                               { type: "CHECK" },
-                              { delay: 1000 }
+                              { delay: 500 }
                             )
                           },
                           {
@@ -238,7 +238,7 @@ export const createPlayer = (
                               pure((context: any, event: any) => {
                                 return sendParent(
                                   { type: "CALL", value: event.value },
-                                  { delay: 1000 }
+                                  { delay: 500 }
                                 );
                               })
                               // sendParent((_context: any, event: any) => {
