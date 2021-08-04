@@ -269,6 +269,16 @@ export default {
   display: grid;
   grid-template-rows: 1fr 1fr 1fr;
 }
+.controls {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  .button {
+    margin: 0.25rem;
+  }
+}
 
 .dealerCards {
   width: 100%;
