@@ -10,9 +10,7 @@
         <div class="h2">
           Amount To Call: {{ service && service.state.context.amountToCall }}
         </div>
-        <div class="h2">
-          Current Pot: {{ service && service.state.context.pot }}
-        </div>
+       
        
       </div> -->
     </div>
@@ -29,6 +27,10 @@
           >
           </CardSvg>
         </div>
+        <div class="h2">
+          <img class="pot" src="/chips.svg" alt="Chips in pot" />
+          {{ service && service.state.context.pot }}
+        </div>
       </div>
       <!-- <div class="humanControls"> -->
       <div class="bottom-r">
@@ -39,6 +41,9 @@
         <button class="button bg-red">Fold</button>
       </div>
       <div id="callButtons" :class="humansTurn ? 'active' : 'inactive'">
+        <div class="callAmount">
+          Amount to call: {{ service && service.state.context.amountToCall }}
+        </div>
         <div v-if="service.state.value === 'gatheringBlinds'" class="controls">
           <button @click="call" class="button bg-blue">Call</button>
 
@@ -76,15 +81,7 @@
 </template>
 
 <script>
-import {
-  actions,
-  createMachine,
-  assign,
-  interpret,
-  spawn,
-  send,
-  sendParent
-} from "xstate";
+import { interpret } from "xstate";
 
 import { createPokerMachine } from "~/utils/poker";
 import { imageDict } from "~/utils/imageDict";
@@ -183,8 +180,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.callAmount {
+  width: 100%;
+  font-size: 1.5rem;
+  text-align: center;
+}
 .inactive {
   opacity: 0.5;
+}
+.pot {
+  height: 50px;
+  width: 50px;
 }
 .bannerLink {
   color: white;
@@ -214,6 +220,7 @@ export default {
   grid-row: 4;
   width: 100%;
   display: flex;
+  flex-wrap: wrap;
 }
 
 .boardInfo {
@@ -222,6 +229,7 @@ export default {
   width: 100%;
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
 }
 .topBanner {
   width: 100vw;
