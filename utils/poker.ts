@@ -216,8 +216,9 @@ export const createPlayer = (
                           },
                           {
                             //check
-                            cond: (_context: any, event: any) =>
+                            cond: (context: PlayerContext, event: UserEvents) =>
                               event.value === 0,
+
                             target: "#player-bot.inGame.hasCards.betted",
                             actions: sendParent(
                               { type: "CHECK" },
