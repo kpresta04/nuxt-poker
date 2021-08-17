@@ -508,7 +508,6 @@ const getWinner = pure((context: PokerContext, event: UserEvents) => {
   const winners = winningHands.map((winner: any) => {
     return context.players[solvedHands.indexOf(winner)];
   });
-
   console.log(winners);
 
   if (winners.length > 1) {
@@ -520,11 +519,8 @@ const getWinner = pure((context: PokerContext, event: UserEvents) => {
     });
   }
 
-  console.log("awarding " + winners);
-  return send(
-    { type: "AWARD_POT", value: context.pot },
-    { to: context.players[0] }
-  );
+  // console.log("awarding " + winners[0]);
+  return send({ type: "AWARD_POT", value: context.pot }, { to: winners[0] });
 });
 const raiseAmountToCall = assign((context: any, event: any) => {
   return {
@@ -892,16 +888,6 @@ export const createPokerMachine = () => {
             context.deck.deal(2, [hand]);
             player.send({ type: "CARDS_DEALT", value: hand });
           });
-        },
-
-        notifyActive: (_context: any, _event: any) => {
-          console.log("active!");
-        },
-        notifyInactive: (_context: any, _event: any) => {
-          console.log("inactive!");
-        },
-        sendTelemetry: (_context: any, _event: any) => {
-          console.log("time:", Date.now());
         }
       }
     }
