@@ -12,12 +12,11 @@ import {
 } from "xstate";
 
 const { pure } = actions;
-// const {pure} = actions
-// interface
 
 type UserEvents = {
   type: string;
   value: string | number;
+  index?: number;
 };
 
 type PlayerContext = {
@@ -86,11 +85,6 @@ const takeBigBlind = (context: any) => {
 };
 
 const takeSmallBlind = (context: any) => {
-  // const playerId = context.playersInHand[context.smallBlindPosition];
-
-  // const smallBlindPlayer = context.players.find(
-  //   (player: any) => player.id === playerId
-  // );
   const playersInHand = context.players.filter(
     (player: any) => player.state.value.inGame
   );
@@ -102,11 +96,6 @@ const takeSmallBlind = (context: any) => {
 };
 
 const requestFirstBet = (context: any) => {
-  // const playerId = context.playersInHand[context.smallBlindPosition];
-
-  // const smallBlindPlayer = context.players.find(
-  //   (player: any) => player.id === playerId
-  // );
   const playersInHand = context.players.filter(
     (player: any) => player.state.value.inGame
   );
@@ -125,7 +114,7 @@ const call = assign((context: any, event: any) => {
   const chips =
     context.chips - event.value > 0 ? context.chips - event.value : 0;
   return {
-    betAmount,
+    // betAmount,
     chips
   };
 });
@@ -147,304 +136,283 @@ const isHuman = (context: PlayerContext, _event: any) => context.human;
 export const createPlayer = (
   player: any = { index: 0, chips: 1000, betAmount: 0, hand: [], human: false }
 ) => {
-  return createMachine(
-    {
-      id: `player-bot`,
-      initial: "inGame",
-      context: player,
-      states: {
-        inGame: {
-          initial: "noCards",
-          states: {
-            noCards: {
-              on: {
-                CARDS_DEALT: {
-                  target: "hasCards",
-                  actions: [
-                    assign({
-                      hand: (_context: any, event: any) => event.value,
-                      betAmount: 0
-                    })
-                  ]
-                }
+  return createMachine({
+    id: `player-bot`,
+    initial: "inGame",
+    context: player,
+    states: {
+      inGame: {
+        initial: "noCards",
+        states: {
+          noCards: {
+            on: {
+              CARDS_DEALT: {
+                target: "hasCards",
+                actions: [
+                  assign({
+                    hand: (_context: any, event: any) => event.value,
+                    betAmount: 0
+                  })
+                ]
               }
-            },
-            hasCards: {
-              initial: "needsToBet",
-              states: {
-                needsToBet: {
-                  initial: "notMyTurn",
+            }
+          },
+          hasCards: {
+            initial: "needsToBet",
+            states: {
+              needsToBet: {
+                initial: "notMyTurn",
 
-                  states: {
-                    notMyTurn: {
-                      on: {
-                        REQUEST_BET: [
-                          {
-                            //update ui
-                            target: "isMyTurn",
-                            cond: isHuman,
-                            actions: [
-                              () => console.log("waiting for human to bet")
-                            ]
-                          },
-                          {
-                            //fold
-                            cond: () => false,
-                            actions: [sendParent({ type: "FOLD" })]
-                          },
-                          {
-                            //raise
-                            cond: (context: any, event: any) => false,
-                            target: "#player-bot.inGame.hasCards.betted",
-                            actions: [
-                              assign((context: any, event: any) => {
-                                const betAmount = context.betAmount + 20;
-                                const chips =
-                                  context.chips - 20 > 0
-                                    ? context.chips - 20
-                                    : 0;
-                                return {
-                                  betAmount,
-                                  chips
-                                };
-                              }),
-                              sendParent(
-                                { type: "RAISE", value: 20, index: 2 },
-                                { delay: 500 }
-                              )
-                            ]
-                          },
-                          {
-                            //check
-                            cond: (context: PlayerContext, event: UserEvents) =>
-                              event.value === 0,
-
-                            target: "#player-bot.inGame.hasCards.betted",
-                            actions: sendParent(
-                              { type: "CHECK" },
+                states: {
+                  notMyTurn: {
+                    on: {
+                      REQUEST_BET: [
+                        {
+                          //update ui
+                          target: "isMyTurn",
+                          cond: isHuman,
+                          actions: [
+                            () => console.log("waiting for human to bet")
+                          ]
+                        },
+                        {
+                          //fold
+                          cond: () => false,
+                          actions: [sendParent({ type: "FOLD" })]
+                        },
+                        {
+                          //raise
+                          cond: (context: any, event: any) => false,
+                          target: "#player-bot.inGame.hasCards.betted",
+                          actions: [
+                            assign((context: any, event: any) => {
+                              const betAmount = context.betAmount + 20;
+                              const chips =
+                                context.chips - 20 > 0 ? context.chips - 20 : 0;
+                              return {
+                                betAmount,
+                                chips
+                              };
+                            }),
+                            sendParent(
+                              { type: "RAISE", value: 20, index: 2 },
                               { delay: 500 }
                             )
-                          },
-                          {
-                            //call
+                          ]
+                        },
+                        {
+                          //check
+                          cond: (context: PlayerContext, event: UserEvents) =>
+                            event.value === 0,
 
-                            //set betAmount and deduct from chips
+                          target: "#player-bot.inGame.hasCards.betted",
+                          actions: sendParent({ type: "CHECK" }, { delay: 500 })
+                        },
+                        {
+                          //call
 
-                            //sendParent CALL response
-                            target: "#player-bot.inGame.hasCards.betted",
-                            actions: [
-                              setBetAmount,
-                              deductBetFromChips,
-                              // sendCallResponse
-                              pure((context: any, event: any) => {
-                                return sendParent(
-                                  { type: "CALL", value: event.value },
-                                  { delay: 500 }
-                                );
-                              })
-                              // sendParent((_context: any, event: any) => {
-                              //   return {
-                              //     type: "CALL",
-                              //     value: event.value
-                              //   };
-                              // })
-                            ]
-                          }
-                        ],
-                        DEDUCT_BIG_BLIND: {
+                          //set betAmount and deduct from chips
+
+                          //sendParent CALL response
                           target: "#player-bot.inGame.hasCards.betted",
                           actions: [
                             setBetAmount,
                             deductBetFromChips,
+                            // sendCallResponse
+                            pure((context: any, event: any) => {
+                              return sendParent(
+                                { type: "CALL", value: event.value },
+                                { delay: 500 }
+                              );
+                            })
+                            // sendParent((_context: any, event: any) => {
+                            //   return {
+                            //     type: "CALL",
+                            //     value: event.value
+                            //   };
+                            // })
+                          ]
+                        }
+                      ],
+                      DEDUCT_BIG_BLIND: {
+                        target: "#player-bot.inGame.hasCards.betted",
+                        actions: [
+                          setBetAmount,
+                          deductBetFromChips,
+                          sendParent({
+                            type: "BIG_BLIND_RESPONSE",
+                            value: 10
+                          })
+                        ]
+                      },
+                      DEDUCT_SMALL_BLIND: [
+                        {
+                          // update ui
+                          target: "isMyTurn",
+                          cond: isHuman,
+                          actions: [
+                            () => console.log("waiting for human small blind"),
+                            setBetAmount,
+                            deductBetFromChips,
                             sendParent({
-                              type: "BIG_BLIND_RESPONSE",
+                              type: "SMALL_BLIND_WAITING",
+                              value: 5
+                            })
+                          ]
+                        },
+                        {
+                          actions: [
+                            smallBlindChoose,
+                            sendParent({
+                              type: "SMALL_BLIND_RESPONSE",
                               value: 10
                             })
-                          ]
+                          ],
+                          target: "#player-bot.inGame.hasCards.betted",
+                          cond: () => true
                         },
-                        DEDUCT_SMALL_BLIND: [
-                          {
-                            // update ui
-                            target: "isMyTurn",
-                            cond: isHuman,
-                            actions: [
-                              () =>
-                                console.log("waiting for human small blind"),
-                              setBetAmount,
-                              deductBetFromChips,
-                              sendParent({
-                                type: "SMALL_BLIND_WAITING",
-                                value: 5
-                              })
-                            ]
-                          },
-                          {
-                            actions: [
-                              smallBlindChoose,
-                              sendParent({
-                                type: "SMALL_BLIND_RESPONSE",
-                                value: 10
-                              })
-                            ],
-                            target: "#player-bot.inGame.hasCards.betted",
-                            cond: () => true
-                          },
-                          { target: `#player-bot.inGame.folded` }
+                        { target: `#player-bot.inGame.folded` }
+                      ]
+                    }
+                  },
+                  isMyTurn: {
+                    on: {
+                      HUMAN_FOLD: {
+                        target: "#player-bot.inGame.folded",
+                        actions: [
+                          assign({
+                            hand: [],
+                            betAmount: () => 0
+                          }),
+                          sendParent({ type: "FOLD" })
+                        ]
+                      },
+                      HUMAN_FOLD_SMALL_BLIND: {
+                        target: "#player-bot.inGame.folded",
+                        actions: [
+                          assign({
+                            hand: [],
+                            betAmount: () => 0
+                          }),
+                          sendParent({
+                            type: "SMALL_BLIND_RESPONSE",
+                            value: 5
+                          })
+                        ]
+                      },
+                      HUMAN_CALL_SMALL_BLIND: {
+                        target: "#player-bot.inGame.hasCards.betted",
+                        actions: [
+                          deductBetFromChips,
+                          setBetAmount,
+                          // sendCallResponse
+                          sendParent({
+                            type: "SMALL_BLIND_RESPONSE",
+                            value: 5
+                          })
+                        ]
+                      },
+                      HUMAN_CALL: {
+                        target: "#player-bot.inGame.hasCards.betted",
+                        actions: [
+                          call,
+                          // setBetAmount,
+                          // deductBetFromChips,
+                          // sendCallResponse
+                          sendParent((_context: any, event: any) => {
+                            return {
+                              type: "CALL",
+                              value: event.value
+                            };
+                          })
+                        ]
+                      },
+                      HUMAN_CHECK: {
+                        target: "#player-bot.inGame.hasCards.betted",
+                        actions: sendParent({ type: "CHECK" })
+                      },
+                      HUMAN_RAISE: {
+                        target: "#player-bot.inGame.hasCards.betted",
+                        actions: [
+                          raise,
+
+                          sendParent((_context: any, event: any) => {
+                            return {
+                              type: "RAISE",
+                              value: event.value,
+                              index: _context.index
+                              //index tells parent which actor did the raise
+                            };
+                          })
                         ]
                       }
-                    },
-                    isMyTurn: {
-                      on: {
-                        HUMAN_FOLD: {
-                          target: "#player-bot.inGame.folded",
-                          actions: [
-                            assign({
-                              hand: [],
-                              betAmount: () => 0
-                            }),
-                            sendParent({ type: "FOLD" })
-                          ]
-                        },
-                        HUMAN_FOLD_SMALL_BLIND: {
-                          target: "#player-bot.inGame.folded",
-                          actions: [
-                            assign({
-                              hand: [],
-                              betAmount: () => 0
-                            }),
-                            sendParent({
-                              type: "SMALL_BLIND_RESPONSE",
-                              value: 5
-                            })
-                          ]
-                        },
-                        HUMAN_CALL_SMALL_BLIND: {
-                          target: "#player-bot.inGame.hasCards.betted",
-                          actions: [
-                            deductBetFromChips,
-                            setBetAmount,
-                            // sendCallResponse
-                            sendParent({
-                              type: "SMALL_BLIND_RESPONSE",
-                              value: 5
-                            })
-                          ]
-                        },
-                        HUMAN_CALL: {
-                          target: "#player-bot.inGame.hasCards.betted",
-                          actions: [
-                            call,
-                            // setBetAmount,
-                            // deductBetFromChips,
-                            // sendCallResponse
-                            sendParent((_context: any, event: any) => {
-                              return {
-                                type: "CALL",
-                                value: event.value
-                              };
-                            })
-                          ]
-                        },
-                        HUMAN_CHECK: {
-                          target: "#player-bot.inGame.hasCards.betted",
-                          actions: sendParent({ type: "CHECK" })
-                        },
-                        HUMAN_RAISE: {
-                          target: "#player-bot.inGame.hasCards.betted",
-                          actions: [
-                            raise,
-
-                            sendParent((_context: any, event: any) => {
-                              return {
-                                type: "RAISE",
-                                value: event.value,
-                                index: _context.index
-                                //index tells parent which actor did the raise
-                              };
-                            })
-                          ]
-                        }
-                      }
-                    }
-                  }
-                },
-                betted: {
-                  on: {
-                    BET_RESET: {
-                      actions: (context: any, _event: any) => {
-                        if (context.human) {
-                          console.log("bet reset");
-                        }
-                      },
-                      target: "#player-bot.inGame.hasCards.needsToBet.notMyTurn"
-                    },
-                    HAND_RESET: {
-                      actions: [
-                        assign({
-                          hand: []
-                          // betAmount: () => 0
-                        })
-                      ],
-                      target: "#player-bot.inGame.noCards"
                     }
                   }
                 }
+              },
+              betted: {
+                on: {
+                  BET_RESET: {
+                    actions: (context: any, _event: any) => {
+                      if (context.human) {
+                        console.log("bet reset");
+                      }
+                    },
+                    target: "#player-bot.inGame.hasCards.needsToBet.notMyTurn"
+                  },
+                  HAND_RESET: {
+                    actions: [
+                      assign({
+                        hand: []
+                        // betAmount: () => 0
+                      })
+                    ],
+                    target: "#player-bot.inGame.noCards"
+                  }
+                }
               }
-            },
-            folded: {}
+            }
           },
-          on: {
-            BUST: { target: "outOfGame" }
-          }
+          folded: {}
         },
-        outOfGame: {
-          type: "final"
+        on: {
+          BUST: { target: "outOfGame" }
         }
+      },
+      outOfGame: {
+        type: "final"
       }
-    } as any
-    // {
-    //   actions: {
-    //     // action implementations
-    //     sub: assign()
-    //     // subtractBet:
-    //   }
-    // }
-  );
+    }
+  } as any);
 };
 type PokerContext = {
   deck: any;
   playerCount: number;
+  players: PlayerList;
+  smallBlindPosition: number;
+  bigBlindPosition: number;
+  smallBlindAmount: number;
+  board: any;
+  pot: number;
+  playersInHand: PlayerList;
+  amountToCall: number;
 };
 
 const allFolded = (context: any, _event: any) =>
   context.playersInHand.length < 2;
 const requestNextBet = send(
-  (context: any, event: any) => ({
+  (context: PokerContext, event: UserEvents) => ({
     type: "REQUEST_BET",
     value: context.amountToCall
   }),
   {
-    to: (context: any) =>
+    to: (context: PokerContext) =>
       context.players.find(
         (player: any) =>
           player.state.value.inGame.hasCards.needsToBet === "notMyTurn"
       )
   }
 );
-// const requestNextBet = send(context: any, _event: any) =>{ type: "REQUEST_BET", value: context.amountToCall },
-//       { {
-//   const nextPlayer = context.players.find(
-//     (player: any) =>
-//       player.state.value.inGame.hasCards.needsToBet === "notMyTurn"
-//   );
-// console.log(context.amountToCall);
-// nextPlayer &&
-//   nextPlayer.send(
-
-//   );
-// setTimeout((context: any, event: any) => {
-// }, 1000);
-// }
 
 const allPlayersHaveBet = (context: any, _event: any) => {
   // console.log("check for all bets");
@@ -460,16 +428,8 @@ const allPlayersHaveBet = (context: any, _event: any) => {
 };
 const getInGamePlayers = (context: any) =>
   context.players.filter((player: any) => player.state.value.inGame);
-// const resetAllBets = (context: any, _event: any) => {
-//   const inGamePlayers = context.players.filter(
-//     (player: any) => player.state.value.inGame
-//   );
 
-//   inGamePlayers.forEach((player: any) => {
-//     player.send({ type: "BET_RESET" });
-//   });
-// };
-const resetAllOtherBets = pure((context: any, event: any) => {
+const resetAllOtherBets = pure((context: PokerContext, event: UserEvents) => {
   // console.log(context.players[1].state.context);
   // console.log(event.index);
 
