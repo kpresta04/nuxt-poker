@@ -353,6 +353,17 @@ export const createPlayer = (
                     },
                     target: "#player-bot.inGame.hasCards.needsToBet.notMyTurn"
                   },
+                  AWARD_POT: {
+                    actions: [
+                      assign((context: PlayerContext, event: any) => {
+                        console.log("awarding pot to " + context.index);
+                        const chips = context.chips + event.value;
+                        return {
+                          chips
+                        };
+                      })
+                    ]
+                  },
                   HAND_RESET: {
                     actions: [
                       assign({
@@ -475,6 +486,45 @@ const addBetToPot = assign((context: any, event: any) => {
     pot: context.pot + event.value
     // amountToCall: context.amountToCall + event.value
   };
+});
+
+const getWinner = pure((context: PokerContext, event: UserEvents) => {
+  const inGamePlayers = context.players.filter(
+    (player: any) => player.state.value.inGame.hasCards
+  );
+  const boardHand = context.board.map((card: any) => card.shortString);
+  const hands = inGamePlayers.map((player: any) => {
+    const cards = player.state.context.hand.map(
+      (card: any) => card.shortString
+    );
+    return cards.concat(boardHand);
+  });
+
+  const solvedHands = hands.map((hand: any) => Hand.solve(hand));
+  const winningHands = Hand.winners(solvedHands);
+  console.log(hands);
+  console.log(solvedHands);
+  console.log({ winningHands });
+  const winners = winningHands.map((winner: any) => {
+    return context.players[solvedHands.indexOf(winner)];
+  });
+
+  console.log(winners);
+
+  if (winners.length > 1) {
+    return winners.map((player: any) => {
+      return send(
+        { type: "AWARD_POT", value: Math.floor(context.pot / winners.length) },
+        { to: player }
+      );
+    });
+  }
+
+  console.log("awarding " + winners);
+  return send(
+    { type: "AWARD_POT", value: context.pot },
+    { to: context.players[0] }
+  );
 });
 const raiseAmountToCall = assign((context: any, event: any) => {
   return {
@@ -770,12 +820,13 @@ export const createPokerMachine = () => {
                 smallBlindPosition,
                 bigBlindPosition
               };
-            })
+            }),
+            getWinner
           ],
           after: {
             3000: {
               actions: [
-                assign((_context: any, _event: any) => {
+                assign((context: PokerContext, event: UserEvents) => {
                   return {
                     board: [],
                     pot: 0,
@@ -802,17 +853,6 @@ export const createPokerMachine = () => {
         setPlayerNumber: assign({
           playerNumber: (_context: any, event: any) => Number(event.value)
         }),
-        // createPlayerList: assign((context:any, event:any)=>{
-        //   let playerArr = [];
-        //   for (let i = 0; i < context.playerNumber; i++) {
-        //     const playerId = `player${i}`;
-        //     // let machine = spawn(createPlayer({ index: i }), `player-${i}`);
-        //     playerArr.push(playerId);
-        //   }
-        //   return{
-        //     players: playerArr
-        //   }
-        // })
 
         spawnPlayerActors: assign((context: any, event: any) => {
           let playerArr = [];
@@ -844,31 +884,7 @@ export const createPokerMachine = () => {
           }
           return { players: playerArr };
         }),
-        // setPlayerLists: assign({
-        //   playersInHand: (context: any, _event: any) => {
-        //     let playerList = [] as PlayerList;
 
-        //     context.players.forEach((player: any) => {
-        //       if (player.state.value.inGame) {
-        //         playerList.push(player.id);
-        //       }
-        //     });
-
-        //     return playerList;
-        //   }
-        // ,
-        // playersInGame: (context, event) => {
-        //   let playerList = [] as PlayerList;
-
-        //   context.players.forEach((player: any) => {
-        //     if (player.state.value.inGame) {
-        //       playerList.push(player.id);
-        //     }
-        //   });
-
-        //   return playerList;
-        // }
-        // }),
         dealCards: (context: any) => {
           // console.log("dealing");
           context.players.forEach((player: any) => {
