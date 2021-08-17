@@ -210,6 +210,7 @@ export default {
     justify-content: center;
   }
   .dealerCards {
+    min-height: 50px;
     justify-content: center;
     height: fit-content !important;
   }
