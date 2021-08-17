@@ -183,6 +183,7 @@ export default {
   }
   .dealerCards {
     justify-content: center;
+    height: fit-content !important;
   }
 }
 .callAmount {
@@ -232,6 +233,7 @@ export default {
   grid-column: 2;
   grid-row: 3;
   width: 100%;
+  height: fit-content;
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
@@ -305,6 +307,7 @@ export default {
 
 .dealerCards {
   width: 100%;
+  height: 140px;
   display: flex;
   flex-wrap: wrap;
   margin: 0 1rem;
