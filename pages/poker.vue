@@ -75,13 +75,14 @@
       </div>
       <div class="humanCards">
         <div class="cards">
-          <img
-            class="playingCard"
+          <CardSvg
             v-for="card in humanHand"
-            :src="getImgSrc(card.shortString)"
-            :alt="card.toString()"
+            :shortString="card.shortString"
+            :label="card.toString()"
+            :suit="card.suit"
             :key="card.index"
-          />
+          >
+          </CardSvg>
         </div>
       </div>
       <!-- </div> -->
@@ -91,10 +92,7 @@
 
 <script>
 import { interpret } from "xstate";
-
 import { createPokerMachine } from "~/utils/poker";
-import { imageDict } from "~/utils/imageDict";
-import PlayingCard from "~/components/PlayingCard.vue";
 import CardSvg from "~/components/CardSvg.vue";
 
 export default {
@@ -111,10 +109,6 @@ export default {
     };
   },
   methods: {
-    getImgSrc: function(str) {
-      return imageDict[str];
-    },
-
     check: function() {
       this.service.state.context.players[0].send({
         type: "HUMAN_CHECK"
@@ -191,6 +185,15 @@ export default {
   .dealerCards {
     justify-content: center;
     height: fit-content !important;
+  }
+}
+.cards {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+
+  div {
+    margin: 0 0.25rem;
   }
 }
 #callAmount {
