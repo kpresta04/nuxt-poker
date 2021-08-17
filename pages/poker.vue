@@ -199,6 +199,7 @@ export default {
   width: 100%;
   font-size: 1.5rem;
   text-align: center;
+  margin: 1rem 0;
 }
 .seat {
   width: 100%;
@@ -263,6 +264,7 @@ export default {
 #callButtons {
   grid-column: 2;
   grid-row: 4;
+  place-content: center;
   width: 100%;
   display: flex;
   flex-wrap: wrap;
