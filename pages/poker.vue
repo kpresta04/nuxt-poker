@@ -43,8 +43,15 @@
         <button class="button bg-red">Fold</button>
       </div>
       <div id="callButtons" :class="humansTurn ? 'active' : 'inactive'">
-        <div class="callAmount">
-          Amount to call: {{ service && service.state.context.amountToCall }}
+        <div id="callAmount" :class="humansTurn ? 'active' : 'hidden'">
+          Amount to call:
+          {{
+            service &&
+            service.state.context.smallBlindPosition === 0 &&
+            service.state.value === "gatheringBlinds"
+              ? service.state.context.smallBlindAmount
+              : service.state.context.amountToCall
+          }}
         </div>
         <div v-if="service.state.value === 'gatheringBlinds'" class="controls">
           <button @click="call" class="button bg-blue">Call</button>
@@ -169,10 +176,10 @@ export default {
     });
 
     console.log(this.service);
+  },
+  mounted() {
+    console.log(this.service);
   }
-  // mounted() {
-  //   console.log(this.humanHand);
-  // }
 };
 </script>
 
@@ -186,10 +193,13 @@ export default {
     height: fit-content !important;
   }
 }
-.callAmount {
+#callAmount {
   width: 100%;
   font-size: 1.5rem;
   text-align: center;
+}
+.hidden {
+  opacity: 0;
 }
 .inactive {
   opacity: 0.5;
