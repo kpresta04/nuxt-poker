@@ -16,6 +16,27 @@
     </div>
 
     <div class="boardGrid">
+      <div
+        v-for="(player, index) in botPlayers"
+        :key="index"
+        :class="'seat ' + `seat${index + 1}`"
+      >
+        <div v-if="player[1]._state.value.inGame" class="playerInfo">
+          <div class="playerName">
+            Player {{ index + 1 }}
+            <img
+              v-if="player[1]._state.value.inGame.hasCards"
+              class="hiddenCards"
+              src="/Hidden Cards.svg"
+              alt="Hidden cards"
+            />
+          </div>
+          <div class="playerChips">
+            <img class="chip" src="/images/chip.svg" alt="Poker chip" />
+            {{ player[1]._state.context.chips }}
+          </div>
+        </div>
+      </div>
       <div class="boardInfo">
         <div class="dealerCards">
           <CardSvg
@@ -28,9 +49,9 @@
           </CardSvg>
         </div>
         <div class="potInfo">
-          <div class="potDiv">
+          <div v-if="service" class="potDiv">
             <img class="pot" src="/chips.svg" alt="Chips in pot" />
-            {{ service && service.state.context.pot }}
+            {{ service.state.context.pot }}
           </div>
         </div>
       </div>
@@ -147,6 +168,10 @@ export default {
         this.service.state.context.players[0].state.value.inGame.hasCards
           .needsToBet === "isMyTurn"
       );
+    },
+
+    botPlayers: function() {
+      return [...this.service.children].slice(1);
     }
   },
 
@@ -178,12 +203,35 @@ export default {
 
 <style lang="scss" scoped>
 @media screen and (min-width: 768px) {
+  .playerName {
+    width: 100%;
+  }
   .potDiv {
     justify-content: center;
   }
   .dealerCards {
     justify-content: center;
     height: fit-content !important;
+  }
+}
+.hiddenCards {
+  height: 24px;
+  width: 24px;
+}
+
+.playerInfo {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  font-size: 1.125rem;
+
+  div {
+    display: flex;
+    align-items: center;
+  }
+  .chip {
+    height: 15px;
+    padding: 0 5px;
   }
 }
 .cards {
@@ -203,6 +251,8 @@ export default {
 }
 .seat {
   width: 100%;
+  display: grid;
+  place-items: center;
 }
 .seat1 {
   grid-row: 4;
@@ -353,9 +403,7 @@ export default {
   flex-wrap: wrap;
   margin: 0 1rem;
 }
-.playerInfo {
-  font-size: 1.125rem;
-}
+
 .playingCard {
   height: 120px;
   width: 80px;
