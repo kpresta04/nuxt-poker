@@ -27,9 +27,11 @@
           >
           </CardSvg>
         </div>
-        <div class="h2">
-          <img class="pot" src="/chips.svg" alt="Chips in pot" />
-          {{ service && service.state.context.pot }}
+        <div class="pot-info">
+          <div class="pot-div">
+            <img class="pot" src="/chips.svg" alt="Chips in pot" />
+            {{ service && service.state.context.pot }}
+          </div>
         </div>
       </div>
       <!-- <div class="humanControls"> -->
@@ -180,6 +182,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@media screen and (min-width: 768px) {
+  .pot-div {
+    justify-content: center;
+  }
+  .dealerCards {
+    justify-content: center;
+  }
+}
 .callAmount {
   width: 100%;
   font-size: 1.5rem;
@@ -236,7 +246,6 @@ export default {
   height: 64px;
   background-color: black;
   display: flex;
-  justify-content: center;
   align-items: center;
 
   .container {
@@ -246,6 +255,17 @@ export default {
     justify-content: space-between;
     align-items: center;
     padding: 0 1rem;
+  }
+}
+
+.pot-info {
+  width: 100%;
+  max-height: 75px;
+  font-size: 1.5rem;
+  .pot-div {
+    display: flex;
+    vertical-align: middle;
+    line-height: 50px;
   }
 }
 .humanStats {
@@ -292,6 +312,7 @@ export default {
   width: 100%;
   display: flex;
   flex-wrap: wrap;
+  margin: 0 1rem;
 }
 
 .playingCard {
