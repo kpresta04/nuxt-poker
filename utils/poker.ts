@@ -43,14 +43,6 @@ const setBetAmount = assign((context: any, event: any) => {
   };
 });
 
-// const setBetAmount = assign({
-//   betAmount: (context: any, event: any) =>
-//     context.chips > context.betAmount + event.value
-//       ? context.betAmount + event.value
-//       : context.chips
-//   // 10
-// });
-
 const deductBetFromChips = assign({
   chips: (context: any, _event: any) => context.chips - context.betAmount
   // 990
@@ -354,6 +346,7 @@ export const createPlayer = (
                 on: {
                   BET_RESET: {
                     actions: (context: any, _event: any) => {
+                      // console.log("reset");
                       if (context.human) {
                         console.log("bet reset");
                       }
