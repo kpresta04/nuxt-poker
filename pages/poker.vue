@@ -176,10 +176,10 @@ export default {
     });
 
     console.log(this.service);
-  },
-  mounted() {
-    console.log(this.service);
   }
+  // mounted() {
+  //   console.log(this.service);
+  // }
 };
 </script>
 
