@@ -200,6 +200,33 @@ export default {
   font-size: 1.5rem;
   text-align: center;
 }
+.seat {
+  width: 100%;
+}
+.seat1 {
+  grid-row: 4;
+  grid-column: 1;
+}
+.seat2 {
+  grid-row: 3;
+  grid-column: 1;
+}
+.seat3 {
+  grid-row: 1;
+  grid-column: 1;
+}
+.seat4 {
+  grid-row: 1;
+  grid-column: 3;
+}
+.seat5 {
+  grid-row: 3;
+  grid-column: 3;
+}
+.seat6 {
+  grid-row: 4;
+  grid-column: 3;
+}
 .hidden {
   opacity: 0;
 }

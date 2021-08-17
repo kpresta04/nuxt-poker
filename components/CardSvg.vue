@@ -32,8 +32,11 @@ export default {
 <style lang="scss" scoped>
 @media screen and (min-width: 768px) {
   .svg-div {
-    margin: 0 2px;
+    margin: 0 0.25rem !important;
   }
+}
+.svg-div {
+  margin: 0 0.1rem;
 }
 .value {
   font-size: 1.5rem;
