@@ -153,8 +153,7 @@ export default {
   created() {
     // let poker;
     // let service;
-    //
-    // // console.log(poker);
+
     // poker = createPokerMachine();
     this.service = interpret(this.poker)
       .onTransition(state => {
@@ -168,10 +167,6 @@ export default {
       type: "CHOOSE_PLAYER_NUMBER",
       value: 7
     });
-    // this.service.state.context.players[0].send({
-    //   type: "HUMAN_CALL_SMALL_BLIND",
-    //   value: 5
-    // });
 
     console.log(this.service);
   }

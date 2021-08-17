@@ -1,8 +1,10 @@
 <template>
-  <div class="background">
-    <div :class="suit + ' ' + 'card-svg'">
-      <div class="value" :aria-label="label">
-        {{ shortString[0] === "T" ? 10 : shortString[0] }}
+  <div class="svg-div">
+    <div class="background">
+      <div :class="suit + ' ' + 'card-svg'">
+        <div class="value" :aria-label="label">
+          {{ shortString[0] === "T" ? 10 : shortString[0] }}
+        </div>
       </div>
     </div>
   </div>
@@ -28,6 +30,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@media screen and (min-width: 768px) {
+  .svg-div {
+    margin: 0 2px;
+  }
+}
 .value {
   font-size: 1.5rem;
   width: 100%;
