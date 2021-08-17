@@ -27,8 +27,8 @@
           >
           </CardSvg>
         </div>
-        <div class="pot-info">
-          <div class="pot-div">
+        <div class="potInfo">
+          <div class="potDiv">
             <img class="pot" src="/chips.svg" alt="Chips in pot" />
             {{ service && service.state.context.pot }}
           </div>
@@ -97,7 +97,6 @@ import CardSvg from "~/components/CardSvg.vue";
 
 export default {
   components: {
-    PlayingCard,
     CardSvg
   },
   data() {
@@ -179,7 +178,7 @@ export default {
 
 <style lang="scss" scoped>
 @media screen and (min-width: 768px) {
-  .pot-div {
+  .potDiv {
     justify-content: center;
   }
   .dealerCards {
@@ -268,11 +267,11 @@ export default {
   }
 }
 
-.pot-info {
+.potInfo {
   width: 100%;
   max-height: 75px;
   font-size: 1.5rem;
-  .pot-div {
+  .potDiv {
     display: flex;
     vertical-align: middle;
     line-height: 50px;
@@ -293,7 +292,7 @@ export default {
   /* grid-template-rows: 1fr 1.5fr 1fr 0.75fr 1fr; */
 
   grid-template-rows: repeat(5, auto);
-  gap: 0 20px;
+  gap: 0 10px;
   height: 100vh;
   width: 100vw;
   max-width: 1200px;
@@ -325,7 +324,9 @@ export default {
   flex-wrap: wrap;
   margin: 0 1rem;
 }
-
+.playerInfo {
+  font-size: 1.125rem;
+}
 .playingCard {
   height: 120px;
   width: 80px;
