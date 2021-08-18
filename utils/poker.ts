@@ -31,9 +31,10 @@ type PlayerList = any;
 
 const setBetAmount = assign((context: any, event: any) => {
   let betAmount;
-  if (context.chips > context.betAmount + event.value) {
+  if (context.chips > event.value) {
     //enough chips to cover bet
-    betAmount = context.betAmount + event.value;
+    // betAmount = context.betAmount + event.value;
+    betAmount = event.value;
   } else {
     //all in
     betAmount = context.chips;
