@@ -400,6 +400,8 @@ type PokerContext = {
   pot: number;
   playersInHand: PlayerList;
   amountToCall: number;
+  winners: any;
+  winningHands: any;
 };
 
 const allFolded = (context: any, _event: any) =>
@@ -487,8 +489,26 @@ const addBetToPot = assign((context: any, event: any) => {
     // amountToCall: context.amountToCall + event.value
   };
 });
+const awardPotToWinner = pure((context: PokerContext, event: UserEvents) => {
+  if (context.winners.length > 1) {
+    return context.winners.map((player: any) => {
+      return send(
+        {
+          type: "AWARD_POT",
+          value: Math.floor(context.pot / context.winners.length)
+        },
+        { to: player }
+      );
+    });
+  }
 
-const getWinner = pure((context: PokerContext, event: UserEvents) => {
+  // console.log("awarding " + winners[0]);
+  return send(
+    { type: "AWARD_POT", value: context.pot },
+    { to: context.winners[0] }
+  );
+});
+const getWinner = assign((context: PokerContext, event: UserEvents) => {
   const inGamePlayers = context.players.filter(
     (player: any) => player.state.value.inGame.hasCards
   );
@@ -508,19 +528,13 @@ const getWinner = pure((context: PokerContext, event: UserEvents) => {
   const winners = winningHands.map((winner: any) => {
     return context.players[solvedHands.indexOf(winner)];
   });
+  const winnerDescriptions = winningHands.map((hand: any) => hand.descr);
   console.log(winners);
 
-  if (winners.length > 1) {
-    return winners.map((player: any) => {
-      return send(
-        { type: "AWARD_POT", value: Math.floor(context.pot / winners.length) },
-        { to: player }
-      );
-    });
-  }
-
-  // console.log("awarding " + winners[0]);
-  return send({ type: "AWARD_POT", value: context.pot }, { to: winners[0] });
+  return {
+    winners,
+    winningHands: winnerDescriptions
+  };
 });
 const raiseAmountToCall = assign((context: any, event: any) => {
   return {
@@ -545,7 +559,9 @@ export const createPokerMachine = () => {
         board: [] as any,
         pot: 0,
         playersInHand: [] as PlayerList,
-        amountToCall: 10
+        amountToCall: 10,
+        winners: null,
+        winningHands: null
       },
       states: {
         inactive: {
@@ -817,7 +833,8 @@ export const createPokerMachine = () => {
                 bigBlindPosition
               };
             }),
-            getWinner
+            getWinner,
+            awardPotToWinner
           ],
           after: {
             3000: {
@@ -827,7 +844,9 @@ export const createPokerMachine = () => {
                     board: [],
                     pot: 0,
                     amountToCall: 0,
-                    deck: createDeck()
+                    deck: createDeck(),
+                    winners: null,
+                    winningHands: null
                   };
                 }),
                 resetAllPlayerHands

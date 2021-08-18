@@ -169,6 +169,9 @@ export default {
           .needsToBet === "isMyTurn"
       );
     },
+    isEnd: function() {
+      return this.service.state.value === "end";
+    },
 
     botPlayers: function() {
       return [...this.service.children].slice(1);
