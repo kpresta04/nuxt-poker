@@ -1,6 +1,30 @@
 @import "normalize.css";
+html {
+  overflow-x: hidden;
+}
 body {
-  font-family: "Source Sans Pro", sans-serif !important;
+  // font-family: "Source Sans Pro", sans-serif !important;
+  font-family: "Lobster", cursive !important;
+  font-size: 16px;
+}
+.v-application {
+  font-family: "Lobster", cursive !important;
+}
+
+.bg-blue {
+  background-color: hsl(215, 70%, 47%);
+}
+.bg-red {
+  background-color: hsl(0, 75%, 41%) !important;
+}
+.bg-md-green {
+  background-color: hsl(129, 31%, 53%) !important;
+}
+.bg-dk-green {
+  background-color: hsl(157, 21%, 14%) !important;
+}
+.container {
+  max-width: 1440px;
 }
 .pokerBoard {
   color: white;
@@ -21,15 +45,20 @@ body {
   /* grid-template-columns: repeat(4, 1fr); */
 }
 .button {
-  font-family: "Source Sans Pro", sans-serif;
-  padding: 1.2rem;
-  font-weight: 600;
-  font-size: 1.1rem;
-  border-radius: 4px;
-  letter-spacing: 2px;
+  border: none;
+  font-size: 1.125rem;
   color: white !important;
+  min-width: 80px;
+  // height: 100%;
+  min-height: 30px;
+  max-height: 30px;
+  line-height: 30px;
   text-decoration: none;
-  text-transform: uppercase;
+  text-transform: capitalize;
+  text-align: center;
+  padding: 0 1.25rem;
+  border-radius: 4px;
+  font-family: "Lobster", cursive !important;
   &:hover {
     cursor: pointer;
   }

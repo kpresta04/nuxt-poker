@@ -4,10 +4,14 @@
       Poker Blitz
     </h1>
 
-    <div class="buttons from-opaque">
-      <nuxt-link class="button bg-dark-red" to="/poker">Play Now</nuxt-link>
-      <!-- <v-btn>View Rules</v-btn> -->
-      <button class="button bg-black">View Rules</button>
+    <div class="button-row from-opaque">
+      <div class="buttons">
+        <nuxt-link to="/poker">
+          <button class="button front-page bg-dark-red">Play Now</button>
+        </nuxt-link>
+        <!-- <v-btn>View Rules</v-btn> -->
+        <button class="button front-page bg-black">View Rules</button>
+      </div>
     </div>
     <!-- <div class="buttons">
       <v-btn :class="{ opaque: !running }" @click="fold" color="red darken-4"
@@ -27,13 +31,24 @@ export default Vue.extend({});
 
 <style lang="scss" scoped>
 .buttons {
+  height: 30px;
+  margin-top: 3rem;
+  a {
+    height: 30px;
+  }
+  .button {
+    height: 30px !important;
+    margin: 0 1rem;
+  }
+}
+.button-row {
   display: flex;
   position: relative;
   /* top: 10%; */
-  justify-content: space-evenly;
+  justify-content: center;
   width: 100%;
   margin: 0 auto;
-  max-width: 50vw;
+  /* max-width: 50vw; */
   /* margin-top: 1rem; */
 }
 .np-title {
@@ -41,7 +56,7 @@ export default Vue.extend({});
   font-weight: 100;
   width: 100%;
   height: fit-content;
-  font-size: 14rem;
+  font-size: 5rem;
   text-shadow: 7px 7px #000000;
   position: relative;
   top: 10%;
@@ -50,45 +65,5 @@ export default Vue.extend({});
 }
 .opaque {
   opacity: 0.5;
-}
-
-.cardsDiv {
-  margin: 0 auto 5rem auto;
-}
-.cardDiv {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  margin: 4rem 0;
-}
-.boardCardDiv {
-  width: 100%;
-  /* grid-row: 3; */
-  /* grid-column: 2 / span 3; */
-  /* position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -160%); */
-}
-.humanHandDiv {
-  width: 100%;
-  /* grid-row: 4 / span 2; */
-  /* position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, 80%); */
-}
-.botCardDiv {
-  position: relative;
-  /* grid-row: 1 / span 2; */
-}
-@media screen and (max-width: 620px) {
-  .playingCard {
-    width: 55px !important;
-  }
-}
-.playingCard {
-  margin: 0 0.5rem;
 }
 </style>
