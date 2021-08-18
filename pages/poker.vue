@@ -1,5 +1,9 @@
 <template>
   <div class="pokerBoard ">
+    <div v-if="isEnd" class="resultBanner">
+      {{ service.state.context.winners[0]["id"] }} wins with
+      {{ service.state.context.winningHands[0] }}
+    </div>
     <div class="topBanner">
       <div class="container">
         <nuxt-link class="bannerLink" to="/"> <h1>Poker Blitz</h1></nuxt-link>
@@ -415,7 +419,17 @@ export default {
   /* margin: 0 0.5rem;
   padding-top: -10px; */
 }
-
+.resultBanner {
+  z-index: 42;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.9);
+  padding: 2rem;
+  font-size: 1.5rem;
+  border-radius: 0.25rem;
+}
 .bottom-r {
   .humanChips {
     display: flex;

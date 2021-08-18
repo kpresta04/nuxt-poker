@@ -837,7 +837,7 @@ export const createPokerMachine = () => {
             awardPotToWinner
           ],
           after: {
-            3000: {
+            4000: {
               actions: [
                 assign((context: PokerContext, event: UserEvents) => {
                   return {
